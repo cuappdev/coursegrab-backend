@@ -13,7 +13,7 @@ def get_user_by_email(email):
 def create_user(email, first_name, last_name):
     optional_user = get_user_by_email(email)
 
-    if not optional_user:
+    if optional_user:
         return False, optional_user
 
     user = User(email=email, first_name=first_name, last_name=last_name)
