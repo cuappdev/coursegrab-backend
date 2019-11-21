@@ -1,5 +1,4 @@
-from app import db
-from models.course import Course
+from . import *
 
 
 def get_course_by_id(id):
