@@ -32,8 +32,8 @@ def scrape_classes():
             ].getText()
             section = str(tag.parent.parent.parent["aria-label"]).strip("Class Section ")
             catalog_tuples.append((subject_code, course_num, title, catalog_num, section))
-    return catalog_tuples()
+    return catalog_tuples
 
 
 if __name__ == "__main__":
-    scrape_classes()
+    print(scrape_classes())
