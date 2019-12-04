@@ -4,7 +4,7 @@ from app import db
 users_to_courses = db.Table(
     "users_to_courses",
     db.Column("user_id", db.Integer, db.ForeignKey("users.id"), primary_key=True),
-    db.Column("course_id", db.Integer, db.ForeignKey("courses.id"), primary_key=True),
+    db.Column("course_id", db.Integer, db.ForeignKey("courses.catalog_num"), primary_key=True),
 )
 
 
