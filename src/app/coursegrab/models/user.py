@@ -1,5 +1,6 @@
 from app import db
 
+
 users_to_courses = db.Table(
     "users_to_courses",
     db.Column("user_id", db.Integer, db.ForeignKey("users.id"), primary_key=True),
