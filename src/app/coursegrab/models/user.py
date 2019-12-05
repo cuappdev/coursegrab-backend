@@ -28,7 +28,6 @@ class User(db.Model):
         self.email = kwargs.get("email")
         self.first_name = kwargs.get("first_name")
         self.last_name = kwargs.get("last_name")
-        self.courses = db.relationship("Course", secondary=users_to_courses, backref="users")
         self.refresh_session()
 
     def generate_token(self):
