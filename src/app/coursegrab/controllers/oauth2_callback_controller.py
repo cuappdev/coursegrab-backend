@@ -29,7 +29,7 @@ class OAuth2CallbackController(AppDevController):
         if not token_res.ok:
             raise Exception("Error fetching token: " + token_json["error_description"])
 
-        id_res = requests.get("https://oauth2.googleapis.com/tokeninfo", params={"id_token": token_json["id_token"]},)
+        id_res = requests.get("https://oauth2.googleapis.com/tokeninfo", params={"id_token": token_json["id_token"]})
         id_json = id_res.json()
         if not id_res.ok:
             raise Exception("Error fetching token info: " + id_json["error_description"])
