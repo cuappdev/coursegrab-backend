@@ -1,7 +1,6 @@
 from os import environ
 import requests
 from . import *
-from app.coursegrab.dao.users_dao import create_user
 
 
 class OAuth2CallbackController(AppDevController):
@@ -34,5 +33,5 @@ class OAuth2CallbackController(AppDevController):
         if not id_res.ok:
             raise Exception("Error fetching token info: " + id_json["error_description"])
 
-        created, user = create_user(id_json["email"], id_json["given_name"], id_json["family_name"])
+        created, user = users_dao.create_user(id_json["email"], id_json["given_name"], id_json["family_name"])
         return user.serialize()

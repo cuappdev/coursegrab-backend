@@ -36,7 +36,7 @@ class User(db.Model):
 
     def refresh_session(self):
         self.session_token = self.generate_token()
-        self.session_expiration = datetime.datetime.now() - datetime.timedelta(days=1)
+        self.session_expiration = datetime.datetime.now() + datetime.timedelta(days=1)
         self.update_token = self.generate_token()
 
     def serialize(self):
