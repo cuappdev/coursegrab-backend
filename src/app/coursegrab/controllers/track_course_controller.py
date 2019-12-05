@@ -16,16 +16,4 @@ class TrackCourseController(AppDevController):
         if not (user_id and catalog_num):
             raise Exception("Missing required attributes.")
 
-        user = users_dao.get_user_by_id(user_id)
-        course = courses_dao.get_course_by_catalog_num(catalog_num)
-
-        if not course:
-            raise Exception("Catalog number is not valid.")
-
-        if course in user.courses:
-            raise Exception("You are already tracking this course.")
-
-        user.courses.append(course)
-        db.session.commit()
-
-        return course.serialize()
+        return users_dao.add_course(user_id, catalog_num)
