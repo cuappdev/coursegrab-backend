@@ -1,4 +1,5 @@
 from . import *
+from app.coursegrab.utils import scraper
 
 
 def get_course_by_catalog_num(catalog_num):
@@ -14,7 +15,7 @@ def get_subject_by_catalog_num(catalog_num):
 
 def get_course_status_by_catalog_num(catalog_num):
     subject_code = get_subject_by_catalog_num(catalog_num)
-    return get_course_status(subject_code, catalog_num)
+    return scraper.get_course_status(subject_code, catalog_num)
 
 
 def create_courses(course_lst):

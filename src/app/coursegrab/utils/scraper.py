@@ -54,6 +54,15 @@ def scrape_classes():
                 0
             ].getText()
             section = str(tag.parent.parent.parent["aria-label"]).strip("Class Section ")
+
+            pattern = tag.parent.parent.parent.find_all("li", class_="meeting-pattern")[0]
+            days_tag = pattern.find_all("span", class_="pattern-only")
+            time_tag = pattern.find_all("time", class_="time")
+            days = str(days_tag[0].getText().strip()) if days_tag else ""
+            time = str(time_tag[0].getText().strip()) if time_tag else "TBA"
+            schedule = (days + " " + time).strip()
+
+            section += " / " + schedule
             catalog_tuples.append((subject_code, course_num, title, catalog_num, section))
     return catalog_tuples
 
