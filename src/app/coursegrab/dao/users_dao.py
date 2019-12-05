@@ -21,7 +21,7 @@ def create_user(email, first_name, last_name):
     return True, user
 
 
-def add_course(user_id, catalog_num):
+def track_course(user_id, catalog_num):
     user = get_user_by_id(user_id)
     course = courses_dao.get_course_by_catalog_num(catalog_num)
 

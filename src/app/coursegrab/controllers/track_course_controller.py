@@ -3,7 +3,7 @@ from . import *
 
 class TrackCourseController(AppDevController):
     def get_path(self):
-        return "/track_course/"
+        return "/users/track/"
 
     def get_methods(self):
         return ["POST"]
@@ -16,4 +16,4 @@ class TrackCourseController(AppDevController):
         if not (user_id and catalog_num):
             raise Exception("Missing required attributes.")
 
-        return users_dao.add_course(user_id, catalog_num)
+        return users_dao.track_course(user_id, catalog_num)

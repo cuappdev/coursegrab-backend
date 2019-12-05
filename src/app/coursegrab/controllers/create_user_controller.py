@@ -3,7 +3,7 @@ from . import *
 
 class CreateUserController(AppDevController):
     def get_path(self):
-        return "/add_user/"
+        return "/users/create/"
 
     def get_methods(self):
         return ["POST"]
