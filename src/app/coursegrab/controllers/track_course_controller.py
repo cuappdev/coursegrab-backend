@@ -22,7 +22,10 @@ class TrackCourseController(AppDevController):
         if not course:
             raise Exception("Catalog number is not valid.")
 
-        user.courses.append(catalog_num)
+        if course in user.courses:
+            raise Exception("You are already tracking this course.")
+
+        user.courses.append(course)
         db.session.commit()
 
-        return user.courses
+        return course.serialize()
