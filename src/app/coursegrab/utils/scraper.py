@@ -17,6 +17,29 @@ def all_subject_codes():
     return [str(tag.getText()) for tag in subject_tags]
 
 
+def get_course_status(subject_code, catalog_num):
+    semester = current_semester()
+    subject_url = "http://classes.cornell.edu/browse/roster/" + semester + "/subject/" + subject_code
+    subject_page = requests.get(subject_url)
+    subject_page.raise_for_status()
+    subject_bs4 = bs4.BeautifulSoup(subject_page.text, "html.parser")
+    catalog_tags = subject_bs4.find_all("strong", class_="tooltip-iws")
+    for tag in catalog_tags:
+        catalog_code = int(tag.getText().strip())
+        if catalog_code == catalog_num:
+            section = tag.parent.parent.parent
+            status = section.find_all("li", class_="open-status")[0].contents[0].contents[0]["class"][-1]
+            if "open-status-open" in status:
+                return "open"
+            if "open-status-closed" in status:
+                return "closed"
+            if "open-status-warning" in status:
+                return "waitlisted"
+            if "open-status-archive" in status:
+                return "archived"
+    return "invalid"
+
+
 def scrape_classes():
     semester = current_semester()
     catalog_tuples = []

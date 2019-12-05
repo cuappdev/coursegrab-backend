@@ -12,7 +12,6 @@ class TrackCourseController(AppDevController):
         data = request.get_json()
         user_id = data.get("user_id")
         catalog_num = data.get("course_id")
-
         if not (user_id and catalog_num):
             raise Exception("Missing required attributes.")
 
