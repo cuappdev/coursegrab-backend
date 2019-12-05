@@ -6,8 +6,8 @@ from app import db
 
 users_to_courses = db.Table(
     "users_to_courses",
-    db.Column("user_id", db.Integer, db.ForeignKey("users.id"), primary_key=True),
-    db.Column("course_id", db.Integer, db.ForeignKey("courses.id"), primary_key=True),
+    db.Column("user_id", db.Integer, db.ForeignKey("users.id")),
+    db.Column("course_id", db.Integer, db.ForeignKey("courses.catalog_num")),
 )
 
 
@@ -17,9 +17,12 @@ class User(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.Integer, nullable=False)
+
     session_token = db.Column(db.String, nullable=False, unique=True)
     session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
+
+    courses = db.relationship("Course", secondary=users_to_courses, backref="users")
 
     def __init__(self, **kwargs):
         self.email = kwargs.get("email")
