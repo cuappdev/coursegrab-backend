@@ -1,10 +1,12 @@
 from flask import Blueprint
 from app.coursegrab.controllers.hello_world_controller import *
+from app.coursegrab.controllers.create_user_controller import *
+from app.coursegrab.controllers.track_course_controller import *
 
 # CourseGrab Blueprint
 coursegrab = Blueprint("coursegrab", __name__, url_prefix="/api")
 
-controllers = [HelloWorldController()]
+controllers = [HelloWorldController(), CreateUserController(), TrackCourseController()]
 
 for controller in controllers:
     coursegrab.add_url_rule(

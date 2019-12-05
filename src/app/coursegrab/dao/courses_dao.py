@@ -1,12 +1,8 @@
 from . import *
 
 
-def get_course_by_id(id):
-    return Course.query.get(id)
-
-
 def get_course_by_catalog_num(catalog_num):
-    return Course.query.filter(Course.catalog_num == catalog_num).first()
+    return Course.query.get(catalog_num)
 
 
 def create_courses(course_lst):
