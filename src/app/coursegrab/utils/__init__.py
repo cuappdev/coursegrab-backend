@@ -1,3 +1,4 @@
-from app.coursegrab.utils.appdev_controller import AppDevController  # noqa: F401
-from app.coursegrab.utils.appdev_redirect_controller import AppDevRedirectController  # noqa: F401
-from app.coursegrab.utils.authorize import *  # noqa: F401
+# flake8: noqa
+from app.coursegrab.utils.appdev_controller import AppDevController
+from app.coursegrab.utils.appdev_redirect_controller import AppDevRedirectController
+from app.coursegrab.utils.authorize import *
