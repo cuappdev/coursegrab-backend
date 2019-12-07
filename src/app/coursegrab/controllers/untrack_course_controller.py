@@ -6,7 +6,7 @@ class UntrackCourseController(AppDevController):
         return "/users/untrack/"
 
     def get_methods(self):
-        return ["DELETE"]
+        return ["POST"]
 
     @authorize_user
     def content(self, **kwargs):
