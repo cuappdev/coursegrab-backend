@@ -20,8 +20,8 @@ controllers = [
     OAuth2CallbackController(),
     RetrieveTrackingController(),
     TrackCourseController(),
-    UpdateSessionController(),
     UntrackCourseController(),
+    UpdateSessionController(),
 ]
 
 for controller in controllers:
