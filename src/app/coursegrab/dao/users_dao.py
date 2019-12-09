@@ -10,12 +10,14 @@ def get_user_by_email(email):
     return User.query.filter(User.email == email).first()
 
 
+def get_tracked_courses(user_id):
+    return get_user_by_id(user_id).courses
+
+
 def create_user(email, first_name, last_name):
     optional_user = get_user_by_email(email)
-
     if optional_user:
         return False, optional_user
-
     user = User(email=email, first_name=first_name, last_name=last_name)
     db.session.add(user)
     db.session.commit()
@@ -41,14 +43,24 @@ def refresh_session(update_token):
 def track_course(user_id, catalog_num):
     user = get_user_by_id(user_id)
     course = courses_dao.get_course_by_catalog_num(catalog_num)
-
     if not course:
         raise Exception("Catalog number is not valid.")
-
     if course in user.courses:
         raise Exception("You are already tracking this course.")
 
     user.courses.append(course)
     db.session.commit()
+    return course
 
-    return course.serialize()
+
+def untrack_course(user_id, catalog_num):
+    user = get_user_by_id(user_id)
+    course = courses_dao.get_course_by_catalog_num(catalog_num)
+    if not course:
+        raise Exception("Catalog number is not valid.")
+    if course not in user.courses:
+        raise Exception("You aren't tracking this course.")
+
+    user.courses.remove(course)
+    db.session.commit()
+    return course

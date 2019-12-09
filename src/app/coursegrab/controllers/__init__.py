@@ -1,4 +1,6 @@
-from flask import request  # noqa: F401
-from app.coursegrab.dao import courses_dao, users_dao  # noqa: F401
-from app.coursegrab.models._all import *  # noqa: F401
-from app.coursegrab.utils import *  # noqa: F401
+# flake8: noqa
+from flask import request
+from app.coursegrab.dao import courses_dao, users_dao
+from app.coursegrab.utils.appdev_controller import AppDevController
+from app.coursegrab.utils.appdev_redirect_controller import AppDevRedirectController
+from app.coursegrab.utils.authorize import authorize_user, extract_bearer
