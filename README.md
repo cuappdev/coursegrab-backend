@@ -50,22 +50,7 @@ python src/run.py
 ```
 
 ## Endpoints
-### /courses/{catalog_num}/status • GET
-**Headers:**
-```json
-{
-  "Authorization": "Bearer <access_token>"
-}
-```
-**Example Response:**
-```json
-{
-  "success": true,
-  "data": "OPEN"
-}
-```
-
-### /users/tracking • GET
+### /api/users/tracking • GET
 **Headers:**
 ```json
 {
@@ -81,6 +66,7 @@ python src/run.py
       "catalog_num": 12401,
       "course_num": 3110,
       "section": "DIS 212 / TR 12:20pm - 1:10pm",
+      "status": "WAITLISTED",
       "subject_code": "CS",
       "title": "Data Structures and Functional Programming"
     },
@@ -88,6 +74,7 @@ python src/run.py
       "catalog_num": 12403,
       "course_num": 4090,
       "section": "IND 606 / TBA",
+      "status": "OPEN",
       "subject_code": "CEE",
       "title": "CEE Undergraduate Research"
     }
@@ -95,7 +82,7 @@ python src/run.py
 }
 ```
 
-### /courses/track • POST
+### /api/courses/track • POST
 **Headers:**
 ```json
 {
@@ -116,13 +103,14 @@ python src/run.py
     "catalog_num": 12401,
     "course_num": 3110,
     "section": "DIS 212 / TR 12:20pm - 1:10pm",
+    "status": "CLOSED",
     "subject_code": "CS",
     "title": "Data Structures and Functional Programming"
   }
 }
 ```
 
-### /courses/untrack • POST
+### /api/courses/untrack • POST
 **Headers:**
 ```json
 {
@@ -143,6 +131,7 @@ python src/run.py
     "catalog_num": 12401,
     "course_num": 3110,
     "section": "DIS 212 / TR 12:20pm - 1:10pm",
+    "status": "OPEN",
     "subject_code": "CS",
     "title": "Data Structures and Functional Programming"
   }
