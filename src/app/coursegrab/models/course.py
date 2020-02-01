@@ -1,4 +1,5 @@
 from app import db
+from app.coursegrab.utils import scraper
 
 
 class Course(db.Model):
@@ -23,4 +24,8 @@ class Course(db.Model):
             "course_num": self.course_num,
             "title": self.title,
             "section": self.section,
+            "status": self.get_course_status(),
         }
+
+    def get_course_status(self):
+        return scraper.get_course_status(self.subject_code, self.catalog_num)

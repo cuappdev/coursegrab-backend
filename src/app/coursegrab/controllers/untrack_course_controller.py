@@ -3,7 +3,7 @@ from . import *
 
 class UntrackCourseController(AppDevController):
     def get_path(self):
-        return "/users/untrack/"
+        return "/courses/untrack/"
 
     def get_methods(self):
         return ["POST"]
