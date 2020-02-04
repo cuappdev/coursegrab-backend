@@ -19,7 +19,6 @@ It's recommended to use [`direnv`](https://direnv.net).
 The required environment variables for this API are the following:
 ```bash
 export CLIENT_ID=""
-export CLIENT_SECRET=""
 export DB_FILENAME=""
 export PORT=5000
 ```
@@ -50,6 +49,44 @@ python src/run.py
 ```
 
 ## Endpoints
+### /api/initialize/session/• POST
+**Body:**
+```json
+{
+  "token": "<TOKEN received from Google>"
+}
+```
+**Example Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "session_expiration": "Tue, 04 Feb 2020 15:22:03 GMT",
+    "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
+    "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
+  }
+}
+```
+
+### /api/session/update/• POST
+**Headers:**
+```json
+{
+  "Authorization": "Bearer <update_token>"
+}
+```
+**Example Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "session_expiration": "Tue, 04 Feb 2020 15:22:03 GMT",
+    "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
+    "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
+  }
+}
+```
+
 ### /api/users/tracking • GET
 **Headers:**
 ```json

@@ -1,4 +1,3 @@
 export CLIENT_ID=""
-export CLIENT_SECRET=""
 export DB_FILENAME=""
 export PORT=5000
