@@ -4,10 +4,10 @@ import os
 from app import db
 
 
-users_to_courses = db.Table(
+users_to_sections = db.Table(
     "users_to_courses",
     db.Column("user_id", db.Integer, db.ForeignKey("users.id")),
-    db.Column("course_id", db.Integer, db.ForeignKey("courses.catalog_num")),
+    db.Column("section_id", db.Integer, db.ForeignKey("sections.catalog_num")),
 )
 
 
@@ -22,7 +22,7 @@ class User(db.Model):
     session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
 
-    courses = db.relationship("Course", secondary=users_to_courses, backref="users")
+    sections = db.relationship("Section", secondary=users_to_sections, backref="users")
 
     def __init__(self, **kwargs):
         self.email = kwargs.get("email")

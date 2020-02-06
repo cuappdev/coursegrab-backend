@@ -11,6 +11,7 @@ class AddCoursesController(AppDevController):
 
     @authorize_user
     def content(self, **kwargs):
+        # TODO: Change to scrape classes and their corresponding sections
         courses = scraper.scrape_classes()
         courses = courses_dao.create_courses(courses)
         return [course.serialize() for course in courses]

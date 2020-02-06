@@ -11,5 +11,5 @@ class RetrieveTrackingController(AppDevController):
     @authorize_user
     def content(self, **kwargs):
         user = kwargs.get("user")
-        courses = users_dao.get_tracked_courses(user.id)
-        return [course.serialize() for course in courses]
+        sections = users_dao.get_tracked_sections(user.id)
+        return [section.serialize() for section in sections]
