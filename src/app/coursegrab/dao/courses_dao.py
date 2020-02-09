@@ -2,11 +2,12 @@ from . import *
 
 
 def get_course_by_subject_and_course_num(subject_code, course_num):
-    return Course.query.filter_by(subject_code=subject_code).filter_by(course_num=course_num).first()
+    return Course.query.filter_by(subject_code=subject_code, course_num=course_num).first()
 
 
 def create_course(subject_code, course_num, title):
     optional_course = get_course_by_subject_and_course_num(subject_code, course_num)
+
     if optional_course:
         return optional_course
 

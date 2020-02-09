@@ -1,4 +1,5 @@
 from flask import Blueprint
+from app.coursegrab.controllers.add_courses_controller import *
 from app.coursegrab.controllers.hello_world_controller import *
 from app.coursegrab.controllers.initialize_session_controller import *
 from app.coursegrab.controllers.retrieve_tracking_controller import *
@@ -10,6 +11,7 @@ from app.coursegrab.controllers.update_session_controller import *
 coursegrab = Blueprint("coursegrab", __name__, url_prefix="/api")
 
 controllers = [
+    AddCoursesController(),
     HelloWorldController(),
     InitializeSessionController(),
     RetrieveTrackingController(),
