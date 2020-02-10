@@ -119,7 +119,7 @@ python src/run.py
 }
 ```
 
-### /api/courses/track • POST
+### /api/sections/track • POST
 **Headers:**
 ```json
 {
@@ -147,7 +147,7 @@ python src/run.py
 }
 ```
 
-### /api/courses/untrack • POST
+### /api/sections/untrack • POST
 **Headers:**
 ```json
 {
