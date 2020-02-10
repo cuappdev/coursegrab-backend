@@ -45,6 +45,6 @@ class User(db.Model):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "session_token": self.session_token,
-            "session_expiration": self.session_expiration,
+            "session_expiration": round(self.session_expiration.timestamp()),
             "update_token": self.update_token,
         }

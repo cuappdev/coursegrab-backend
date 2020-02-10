@@ -61,7 +61,7 @@ python src/run.py
 {
   "success": true,
   "data": {
-    "session_expiration": "Tue, 04 Feb 2020 15:22:03 GMT",
+    "session_expiration": "1581435566",
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
   }
@@ -80,7 +80,7 @@ python src/run.py
 {
   "success": true,
   "data": {
-    "session_expiration": "Tue, 04 Feb 2020 15:22:03 GMT",
+    "session_expiration": "1581435566",
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
   }
