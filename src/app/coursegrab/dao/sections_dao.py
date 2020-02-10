@@ -10,13 +10,13 @@ def create_sections(course, section_lst):
     (subject_code, course_num, title) = course
     course_id = courses_dao.create_course(subject_code, course_num, title).id
 
-    for (catalog_num, section) in section_lst:
+    for (catalog_num, section, status) in section_lst:
         optional_section = get_section_by_catalog_num(catalog_num)
 
         if optional_section:
             sections.append(optional_section)
         else:
-            section = Section(catalog_num=catalog_num, section=section, course_id=course_id)
+            section = Section(catalog_num=catalog_num, section=section, status=status, course_id=course_id)
             sections.append(section)
             db.session.add(section)
     db.session.commit()

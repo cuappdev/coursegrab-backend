@@ -16,54 +16,56 @@ def all_subject_codes():
     return [str(tag.getText()) for tag in subject_tags]
 
 
-def get_course_status(subject_code, catalog_num):
-    semester = current_semester()
-    subject_req = requests.get(ROOT_URL + "/browse/roster/" + semester + "/subject/" + subject_code)
-    subject_req.raise_for_status()
-    subject_bs4 = bs4.BeautifulSoup(subject_req.text, "html.parser")
-    catalog_tags = subject_bs4.find_all("strong", class_="tooltip-iws")
-    for tag in catalog_tags:
-        catalog_code = int(tag.getText().strip())
-        if catalog_code == catalog_num:
-            section = tag.parent.parent.parent
-            status = section.find_all("li", class_="open-status")[0].contents[0].contents[0]["class"][-1]
-            if "open-status-open" in status:
-                return OPEN
-            if "open-status-closed" in status:
-                return CLOSED
-            if "open-status-warning" in status:
-                return WAITLISTED
-            if "open-status-archive" in status:
-                return ARCHIVED
-    return INVALID
-
-
 def scrape_classes():
     semester = current_semester()
     catalog_tuples = []
+    # Iterate through each subject
     for subject_code in all_subject_codes():
         subject_req = requests.get(ROOT_URL + "/browse/roster/" + semester + "/subject/" + subject_code)
         subject_bs4 = bs4.BeautifulSoup(subject_req.text, "html.parser")
-        catalog_tags = subject_bs4.find_all("strong", class_="tooltip-iws")
-        for tag in catalog_tags:
-            catalog_num = int(tag.getText().strip())
-            course_num = int("".join([x for x in tag.next_sibling.getText() if x.isdigit()]))
-            title = tag.parent.parent.parent.parent.parent.parent.find_all("div", class_="title-coursedescr")[
-                0
-            ].getText()
-            section = str(tag.parent.parent.parent["aria-label"]).replace("Class Section ", "")
+        course_tags = subject_bs4.find_all("div", class_="node")
+        course_tags.pop(0)
 
-            pattern = tag.parent.parent.parent.find_all("li", class_="meeting-pattern")[0]
-            days_tag = pattern.find_all("span", class_="pattern-only")
-            time_tag = pattern.find_all("time", class_="time")
-            schedule = []
-            if days_tag:
-                schedule.append(days_tag[0].getText().strip())
-            if time_tag:
-                schedule.append(time_tag[0].getText().strip())
-            section += " / " + (" ".join(schedule) if time_tag else "TBA")
+        # Iterate through each course
+        for tag in course_tags:
+            course_num = tag["data-catalog-nbr"]
+            course_title = tag.find_all("div", class_="title-coursedescr")[0].getText()
+            course = (subject_code, course_num, course_title)
 
-            catalog_tuples.append((subject_code, course_num, title, catalog_num, section))
+            section_tags = tag.find_all("ul", class_="section")
+            sections_arr = []
+
+            # Iterate through each section
+            for section_tag in section_tags:
+                section = str(section_tag["aria-label"]).replace(
+                    "Class Section ", ""
+                )  # Get section type + section number
+                pattern = section_tag.find_all("li", class_="meeting-pattern")[0]
+                days_tag = pattern.find_all("span", class_="pattern-only")
+                time_tag = pattern.find_all("time", class_="time")
+                schedule = []
+                if days_tag:
+                    schedule.append(days_tag[0].getText().strip())
+                if time_tag:
+                    schedule.append(time_tag[0].getText().strip())
+                section += " / " + (" ".join(schedule) if time_tag else "TBA")  # section type + section number + time
+
+                catalog_tag = section_tag.find_all("strong", class_="tooltip-iws")[0]
+                catalog_num = int(catalog_tag.getText().strip())
+
+                open_status = section_tag.find_all("li", class_="open-status")[0].contents[0].contents[0]["class"][-1]
+                status = INVALID
+                if "open-status-open" in open_status:
+                    status = OPEN
+                if "open-status-closed" in open_status:
+                    status = CLOSED
+                if "open-status-warning" in open_status:
+                    status = WAITLISTED
+                if "open-status-archive" in open_status:
+                    status = ARCHIVED
+
+                sections_arr.append((catalog_num, section, status))
+            catalog_tuples.append((course, sections_arr))
     return catalog_tuples
 
 
