@@ -11,6 +11,6 @@ class AddCoursesController(AppDevController):
 
     @authorize_user
     def content(self, **kwargs):
-        courses = scraper.scrape_classes()
-        courses = courses_dao.create_courses(courses)
-        return [course.serialize() for course in courses]
+        catalog_tuples = scraper.scrape_classes()
+        for course, sections in catalog_tuples:
+            sections_dao.create_sections(course, sections)

@@ -1,9 +1,9 @@
 from . import *
 
 
-class TrackCourseController(AppDevController):
+class TrackSectionController(AppDevController):
     def get_path(self):
-        return "/courses/track/"
+        return "/sections/track/"
 
     def get_methods(self):
         return ["POST"]
@@ -16,5 +16,5 @@ class TrackCourseController(AppDevController):
         if not catalog_num:
             raise Exception("Must provide catalog number.")
 
-        course = users_dao.track_course(user.id, catalog_num)
-        return course.serialize()
+        section = users_dao.track_section(user.id, catalog_num)
+        return section.serialize()
