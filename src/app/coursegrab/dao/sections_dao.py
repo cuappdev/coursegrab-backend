@@ -5,6 +5,16 @@ def get_section_by_catalog_num(catalog_num):
     return Section.query.get(catalog_num)
 
 
+def update_status_by_catalog_num(catalog_num, status):
+    section = get_section_by_catalog_num(catalog_num)
+    if section and section.status != status:
+        section.status = status
+        db.session.add(section)
+        db.session.commit()
+        return section
+    return None
+
+
 def create_sections(course, section_lst):
     sections = []
     (subject_code, course_num, title) = course
