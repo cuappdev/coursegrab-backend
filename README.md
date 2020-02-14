@@ -174,3 +174,37 @@ python src/run.py
   }
 }
 ```
+
+### /api/courses/search • POST
+**Headers:**
+```json
+{
+  "Authorization": "Bearer <access_token>"
+}
+```
+**Body:**
+```json
+{
+  "query": "cs 3110"
+}
+```
+**Example Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "subject_code": "CS",
+    "course_num": 3110,
+    "title": "Object-Oriented Programming and Data Structures",
+    "sections": [
+        {
+            "catalog_num": 12401,
+            "course_num": 3110,
+            "status": "OPEN",
+            "subject_code": "CS",
+            "title": "Data Structures and Functional Programming"
+        }
+    ]
+  }
+}
+```
