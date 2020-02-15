@@ -3,6 +3,7 @@ from app.coursegrab.controllers.add_courses_controller import *
 from app.coursegrab.controllers.hello_world_controller import *
 from app.coursegrab.controllers.initialize_session_controller import *
 from app.coursegrab.controllers.retrieve_tracking_controller import *
+from app.coursegrab.controllers.search_course_controller import *
 from app.coursegrab.controllers.track_section_controller import *
 from app.coursegrab.controllers.untrack_section_controller import *
 from app.coursegrab.controllers.update_session_controller import *
@@ -15,6 +16,7 @@ controllers = [
     HelloWorldController(),
     InitializeSessionController(),
     RetrieveTrackingController(),
+    SearchCourseController(),
     TrackSectionController(),
     UntrackSectionController(),
     UpdateSessionController(),

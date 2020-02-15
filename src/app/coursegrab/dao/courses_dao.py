@@ -15,3 +15,7 @@ def create_course(subject_code, course_num, title):
     db.session.add(course)
     db.session.commit()
     return course
+
+
+def search_courses(query):
+    return Course.query.filter(Course.search_string.ilike("%{}%".format(query))).limit(20)
