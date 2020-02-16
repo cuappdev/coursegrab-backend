@@ -12,4 +12,4 @@ class RetrieveTrackingController(AppDevController):
     def content(self, **kwargs):
         user = kwargs.get("user")
         sections = users_dao.get_tracked_sections(user.id)
-        return [section.serialize() for section in sections]
+        return [section.serialize_with_user(user.id) for section in sections]

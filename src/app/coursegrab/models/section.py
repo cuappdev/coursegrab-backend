@@ -1,5 +1,6 @@
 from app import db
 from app.coursegrab.models.course import Course
+from app.coursegrab.models.user import User
 
 
 class Section(db.Model):
@@ -19,9 +20,15 @@ class Section(db.Model):
         course = Course.query.filter_by(id=self.course_id).first()
         return {
             "catalog_num": self.catalog_num,
-            "subject_code": course.subject_code,
             "course_num": course.course_num,
             "title": course.title,
             "section": self.section,
             "status": self.status,
+            "subject_code": course.subject_code,
         }
+
+    def serialize_with_user(self, user_id):
+        user = User.query.get(user_id)
+        course = self.serialize()
+        course["is_tracking"] = True if self in user.sections else False
+        return course

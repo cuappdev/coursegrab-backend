@@ -11,9 +11,10 @@ class SearchCourseController(AppDevController):
     @authorize_user
     def content(self, **kwargs):
         data = request.get_json()
+        user = kwargs.get("user")
         query = data.get("query")
         if not query:
             raise Exception("Must provide query.")
 
         courses = courses_dao.search_courses(query)
-        return [course.serialize() for course in courses]
+        return [course.serialize_with_user(user.id) for course in courses]

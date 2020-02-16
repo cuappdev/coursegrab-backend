@@ -120,7 +120,7 @@ def update_all_statuses():
                     status = ARCHIVED
                 updated_section = sections_dao.update_status_by_catalog_num(catalog_num, status)
                 if updated_section:
-                    updated_sections.append(updated_section.serialize())
+                    updated_sections.append(updated_section)
     return updated_sections
 
 
