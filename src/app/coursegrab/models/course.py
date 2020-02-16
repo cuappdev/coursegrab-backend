@@ -23,3 +23,11 @@ class Course(db.Model):
             "title": self.title,
             "sections": [section.serialize() for section in self.sections],
         }
+
+    def serialize_with_user(self, user_id):
+        return {
+            "subject_code": self.subject_code,
+            "course_num": self.course_num,
+            "title": self.title,
+            "sections": [section.serialize_with_user(user_id) for section in self.sections],
+        }

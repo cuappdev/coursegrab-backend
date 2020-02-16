@@ -17,4 +17,4 @@ class UntrackSectionController(AppDevController):
             raise Exception("Must provide catalog number.")
 
         section = users_dao.untrack_section(user.id, catalog_num)
-        return section.serialize()
+        return section.serialize_with_user(user.id)
