@@ -5,12 +5,18 @@ from datetime import datetime
 from app.coursegrab.dao import sections_dao
 from app.coursegrab.utils.constants import OPEN, CLOSED, WAITLISTED, ARCHIVED, INVALID, ROOT_URL
 
+on_startup = True
+
 
 def start_update():
+    global on_startup
     try:
         print("[{0}] Updating course statuses".format(datetime.now()))
         try:
-            update_all_statuses()
+            if not on_startup:
+                update_all_statuses()
+            else:
+                on_startup = False
         except:
             pass
     finally:

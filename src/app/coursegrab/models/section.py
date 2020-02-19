@@ -32,3 +32,11 @@ class Section(db.Model):
         course = self.serialize()
         course["is_tracking"] = True if self in user.sections else False
         return course
+
+    def __eq__(self, obj):
+        return (
+            isinstance(obj, Section)
+            and obj.catalog_num == self.catalog_num
+            and obj.section == self.section
+            and obj.course_id == self.course_id
+        )
