@@ -49,7 +49,7 @@ python src/run.py
 ```
 
 ## Endpoints
-### /api/initialize/session/• POST
+### /api/session/initialize/• POST
 **Body:**
 ```json
 {
