@@ -119,6 +119,28 @@ python src/run.py
 }
 ```
 
+### /api/users/device-token • POST
+**Headers:**
+```json
+{
+  "Authorization": "Bearer <access_token>"
+}
+```
+**Body:**
+```json
+{
+  "is_ios": true,
+  "device_token": "123abc456def"
+}
+```
+**Example Response:**
+```json
+{
+  "success": true,
+  "data": null
+}
+```
+
 ### /api/sections/track • POST
 **Headers:**
 ```json
