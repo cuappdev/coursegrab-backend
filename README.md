@@ -18,7 +18,8 @@ pip install -r requirements.txt
 It's recommended to use [`direnv`](https://direnv.net).
 The required environment variables for this API are the following:
 ```bash
-export CLIENT_ID=""
+export ANDROID_CLIENT_ID=""
+export IOS_CLIENT_ID=""
 export DB_FILENAME=""
 export PORT=5000
 ```
@@ -53,7 +54,8 @@ python src/run.py
 **Body:**
 ```json
 {
-  "token": "<TOKEN received from Google>"
+  "token": "<TOKEN received from Google>",
+  "is_ios": true
 }
 ```
 **Example Response:**

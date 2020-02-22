@@ -14,8 +14,10 @@ class InitializeSessionController(AppDevController):
     def content(self, **kwargs):
         data = request.get_json()
         token = data.get("token")
+        is_ios = data.get("is_ios")
         try:
-            id_info = id_token.verify_oauth2_token(token, requests.Request(), environ["CLIENT_ID"])
+            client_id = environ["IOS_CLIENT_ID"] if is_ios else environ["ANDROID_CLIENT_ID"]
+            id_info = id_token.verify_oauth2_token(token, requests.Request(), client_id)
 
             if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
                 raise ValueError("Wrong issuer.")

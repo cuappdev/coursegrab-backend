@@ -1,3 +1,4 @@
-export CLIENT_ID=""
+export ANDROID_CLIENT_ID=""
+export IOS_CLIENT_ID=""
 export DB_FILENAME=""
 export PORT=5000
