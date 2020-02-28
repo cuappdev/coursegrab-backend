@@ -26,11 +26,7 @@ class InitializeSessionController(AppDevController):
             email, first_name, last_name = id_info["email"], id_info["given_name"], id_info["family_name"]
             created, user = users_dao.create_user(email, first_name, last_name)
 
-            return {
-                "session_token": user.session_token,
-                "session_expiration": user.session_expiration,
-                "update_token": user.update_token,
-            }
+            return user.serialize_session()
 
         except ValueError:
             raise Exception("Invalid token")

@@ -43,13 +43,18 @@ class User(db.Model):
 
     def serialize(self):
         return {
+            **self.serialize_session(),
             "id": self.id,
             "device_token": self.device_token,
             "email": self.email,
             "first_name": self.first_name,
             "is_ios": self.is_ios,
             "last_name": self.last_name,
+        }
+
+    def serialize_session(self):
+        return {
             "session_token": self.session_token,
-            "session_expiration": round(self.session_expiration.timestamp()),
+            "session_expiration": str(round(self.session_expiration.timestamp())),
             "update_token": self.update_token,
         }
