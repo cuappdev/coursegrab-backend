@@ -3,3 +3,6 @@ python:
 - '3.6'
 script:
 - pytest
+env:
+  global:
+  - DB_FILENAME='coursegrab.db'
