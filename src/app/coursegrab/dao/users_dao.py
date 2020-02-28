@@ -64,3 +64,12 @@ def untrack_section(user_id, catalog_num):
     user.sections.remove(section)
     db.session.commit()
     return section
+
+
+def update_device_token(user_id, is_ios, device_token):
+    user = get_user_by_id(user_id)
+    user.is_ios = is_ios
+    user.device_token = device_token
+    db.session.add(user)
+    db.session.commit()
+    return user
