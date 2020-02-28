@@ -89,7 +89,7 @@ python src/run.py
 }
 ```
 
-### /api/users/tracking • GET
+### /api/users/tracking/ • GET
 **Headers:**
 ```json
 {
@@ -121,7 +121,7 @@ python src/run.py
 }
 ```
 
-### /api/users/device-token • POST
+### /api/users/device-token/ • POST
 **Headers:**
 ```json
 {
@@ -143,7 +143,7 @@ python src/run.py
 }
 ```
 
-### /api/sections/track • POST
+### /api/sections/track/ • POST
 **Headers:**
 ```json
 {
@@ -171,7 +171,7 @@ python src/run.py
 }
 ```
 
-### /api/sections/untrack • POST
+### /api/sections/untrack/ • POST
 **Headers:**
 ```json
 {
@@ -199,7 +199,7 @@ python src/run.py
 }
 ```
 
-### /api/courses/search • POST
+### /api/courses/search/ • POST
 **Headers:**
 ```json
 {

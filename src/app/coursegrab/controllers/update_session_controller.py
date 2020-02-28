@@ -12,8 +12,4 @@ class UpdateSessionController(AppDevController):
     def content(self, **kwargs):
         update_token = kwargs.get("bearer_token")
         user = users_dao.refresh_session(update_token)
-        return {
-            "session_token": user.session_token,
-            "session_expiration": user.session_expiration,
-            "update_token": user.update_token,
-        }
+        return user.serialize_session()
