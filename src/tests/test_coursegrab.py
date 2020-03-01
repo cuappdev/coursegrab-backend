@@ -1,7 +1,7 @@
 import json
 import pytest
 from app import app, db
-from app.coursegrab.dao import sections_dao, users_dao
+from app.coursegrab.dao import courses_dao, sections_dao, users_dao
 from .helpers import client_get, client_post
 
 
@@ -40,9 +40,7 @@ def test_update_session(client, user):
     res = json.loads(req.data)
 
     assert res["success"]
-    assert "session_token" in res["data"]
-    assert "session_expiration" in res["data"]
-    assert "update_token" in res["data"]
+    assert res["data"] == user.serialize_session()
 
 
 def test_retrieve_tracking_none(client, user):
@@ -84,3 +82,25 @@ def test_untrack_section(client, user):
 
     assert res["success"]
     assert res["data"] == []
+
+
+def test_search_course(client, user):
+    course = ("CS", 5430, "System Security")
+    section = (12350, "001", "OPEN")
+    sections_dao.create_sections(course, [section])[0]
+
+    res = client_post(client, user, "/api/courses/search/", {"query": "CS"})
+
+    assert res["success"]
+
+    created_course = courses_dao.get_course_by_subject_and_course_num("CS", 5430)
+    assert res["data"][0] == created_course.serialize_with_user(user.id)
+
+
+def test_update_device_token(client, user):
+    res = client_post(client, user, "/api/users/device-token/", {"is_ios": True, "device_token": "ABC123"})
+
+    assert res["success"]
+
+    assert user.is_ios
+    assert user.device_token == "ABC123"
