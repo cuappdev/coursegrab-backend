@@ -63,7 +63,7 @@ python src/run.py
 {
   "success": true,
   "data": {
-    "session_expiration": "1581435566",
+    "session_expiration": 1581435566,
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
   }
@@ -82,7 +82,7 @@ python src/run.py
 {
   "success": true,
   "data": {
-    "session_expiration": "1581435566",
+    "session_expiration": 1581435566,
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
   }

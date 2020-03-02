@@ -55,6 +55,6 @@ class User(db.Model):
     def serialize_session(self):
         return {
             "session_token": self.session_token,
-            "session_expiration": str(round(self.session_expiration.timestamp())),
+            "session_expiration": round(self.session_expiration.timestamp()),
             "update_token": self.update_token,
         }

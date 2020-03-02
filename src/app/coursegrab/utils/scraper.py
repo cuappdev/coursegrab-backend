@@ -128,6 +128,3 @@ def update_all_statuses():
                 if updated_section:
                     updated_sections.append(updated_section)
     return updated_sections
-
-
-start_update()
