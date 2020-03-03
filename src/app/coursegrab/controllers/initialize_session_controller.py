@@ -2,6 +2,7 @@ from os import environ
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from . import *
+from app import db
 
 
 class InitializeSessionController(AppDevController):
@@ -25,6 +26,9 @@ class InitializeSessionController(AppDevController):
             # ID token is valid. Get the user's Google Account information.
             email, first_name, last_name = id_info["email"], id_info["given_name"], id_info["family_name"]
             created, user = users_dao.create_user(email, first_name, last_name)
+            if not created:
+                user.refresh_session()
+                db.session.commit()
 
             return user.serialize_session()
 
