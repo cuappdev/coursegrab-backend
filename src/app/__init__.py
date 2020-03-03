@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from os import environ
+from os import environ, path
+
+base_dir = path.abspath(path.dirname(__file__)) + path.sep
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///%s" % environ["DB_FILENAME"]
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///%s" % (base_dir + environ["DB_FILENAME"])
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 db = SQLAlchemy(app)

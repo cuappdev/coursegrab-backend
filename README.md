@@ -49,6 +49,20 @@ To run the app:
 python src/run.py
 ```
 
+## Migrations
+### Initialize migrations
+```
+python src/manage.py db init 
+```
+### Generate a migration
+```
+python src/manage.py db migrate -m "Message describing migration"
+```
+### Run the migration
+```
+python src/manage.py db upgrade
+```
+
 ## Endpoints
 ### /api/session/initialize/• POST
 **Body:**
