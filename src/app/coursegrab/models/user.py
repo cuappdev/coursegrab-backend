@@ -5,9 +5,9 @@ from app import db
 
 
 users_to_sections = db.Table(
-    "users_to_courses",
+    "users_to_sections",
     db.Column("user_id", db.Integer, db.ForeignKey("users.id")),
-    db.Column("section_id", db.Integer, db.ForeignKey("sections.catalog_num")),
+    db.Column("catalog_num", db.Integer, db.ForeignKey("sections.catalog_num")),
 )
 
 
