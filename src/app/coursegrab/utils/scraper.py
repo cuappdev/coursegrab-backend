@@ -17,10 +17,24 @@ def start_update():
                 update_all_statuses()
             else:
                 on_startup = False
+                threading.Thread(None, refresh_classes).start()
         except:
             pass
     finally:
         threading.Timer(300, start_update).start()
+
+
+def refresh_classes():
+    try:
+        try:
+            print("[{0}] Scraping classes".format(datetime.now()))
+            catalog_tuples = scrape_classes()
+            for course, sections in catalog_tuples:
+                sections_dao.create_sections(course, sections)
+        except:
+            pass
+    finally:
+        threading.Timer(60 * 60 * 24, refresh_classes).start()
 
 
 def current_semester():
@@ -77,6 +91,14 @@ def scrape_classes():
                 catalog_tag = section_tag.find_all("strong", class_="tooltip-iws")[0]
                 catalog_num = int(catalog_tag.getText().strip())
 
+                instructor_tag = pattern.find_all("li", class_="instructors")
+                instructors = []
+                if instructor_tag:
+                    for p in instructor_tag[0].find_all("p"):
+                        name = p.find("span").get("data-content") if p.find("span") else p.text
+                        instructors.append(name)
+                instructor_str = ",".join(instructors) if instructors else None
+
                 open_status = section_tag.find_all("li", class_="open-status")[0].contents[0].contents[0]["class"][-1]
                 status = INVALID
                 if "open-status-open" in open_status:
@@ -88,7 +110,7 @@ def scrape_classes():
                 if "open-status-archive" in open_status:
                     status = ARCHIVED
 
-                sections_arr.append((catalog_num, section, status))
+                sections_arr.append((catalog_num, section, status, instructor_str))
             catalog_tuples.append((course, sections_arr))
     return catalog_tuples
 

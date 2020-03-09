@@ -118,7 +118,8 @@ python src/manage.py db upgrade
     {
       "catalog_num": 12401,
       "course_num": 3110,
-      "section": "DIS 212 / TR 12:20pm - 1:10pm",
+      "instructors": ["Nate Foster (jnf27)"],
+      "section": "LEC 001 / TR 12:20pm - 1:10pm",
       "status": "WAITLISTED",
       "subject_code": "CS",
       "title": "Data Structures and Functional Programming"
@@ -126,6 +127,7 @@ python src/manage.py db upgrade
     {
       "catalog_num": 12403,
       "course_num": 4090,
+      "instructors": [],
       "section": "IND 606 / TBA",
       "status": "OPEN",
       "subject_code": "CEE",
@@ -177,6 +179,7 @@ python src/manage.py db upgrade
   "data": {
     "catalog_num": 12401,
     "course_num": 3110,
+    "instructors": ["Staff"],
     "section": "DIS 212 / TR 12:20pm - 1:10pm",
     "status": "CLOSED",
     "subject_code": "CS",
@@ -205,6 +208,7 @@ python src/manage.py db upgrade
   "data": {
     "catalog_num": 12401,
     "course_num": 3110,
+    "instructors": ["Staff"],
     "section": "DIS 212 / TR 12:20pm - 1:10pm",
     "status": "OPEN",
     "subject_code": "CS",
@@ -238,7 +242,9 @@ python src/manage.py db upgrade
         {
             "catalog_num": 12401,
             "course_num": 3110,
+            "instructors": ["Staff"],
             "status": "OPEN",
+            "section": "DIS 212 / TR 12:20pm - 1:10pm",
             "subject_code": "CS",
             "title": "Data Structures and Functional Programming"
         }

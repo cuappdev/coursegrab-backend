@@ -8,4 +8,4 @@ COPY . .
 RUN pip install -r requirements.txt
 
 EXPOSE 5000
-CMD python src/run.py
+CMD python src/manage.py db upgrade; python src/run.py
