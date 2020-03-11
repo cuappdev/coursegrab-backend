@@ -6,12 +6,14 @@ from app.coursegrab.models.user import User
 class Section(db.Model):
     __tablename__ = "sections"
     catalog_num = db.Column(db.Integer, primary_key=True)
+    instructors = db.Column(db.String, nullable=True)
     section = db.Column(db.String, nullable=False)
     status = db.Column(db.String, nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
 
     def __init__(self, **kwargs):
         self.catalog_num = kwargs.get("catalog_num")
+        self.instructors = kwargs.get("instructors")
         self.section = kwargs.get("section")
         self.status = kwargs.get("status")
         self.course_id = kwargs.get("course_id")
@@ -21,6 +23,7 @@ class Section(db.Model):
         return {
             "catalog_num": self.catalog_num,
             "course_num": course.course_num,
+            "instructors": self.instructors.split(",") if self.instructors else [],
             "title": course.title,
             "section": self.section,
             "status": self.status,

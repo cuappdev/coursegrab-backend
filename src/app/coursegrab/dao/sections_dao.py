@@ -20,13 +20,17 @@ def create_sections(course, section_lst):
     (subject_code, course_num, title) = course
     course_id = courses_dao.create_course(subject_code, course_num, title).id
 
-    for (catalog_num, section, status) in section_lst:
+    for (catalog_num, section, status, instructors) in section_lst:
         optional_section = get_section_by_catalog_num(catalog_num)
 
         if optional_section:
+            optional_section.status = status
+            optional_section.instructors = instructors
             sections.append(optional_section)
         else:
-            section = Section(catalog_num=catalog_num, section=section, status=status, course_id=course_id)
+            section = Section(
+                catalog_num=catalog_num, section=section, status=status, course_id=course_id, instructors=instructors
+            )
             sections.append(section)
             db.session.add(section)
     db.session.commit()

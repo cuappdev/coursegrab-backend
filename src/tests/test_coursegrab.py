@@ -52,7 +52,7 @@ def test_retrieve_tracking_none(client, user):
 
 def test_track_section(client, user):
     course = ("CS", 5430, "System Security")
-    section = (12350, "001", "OPEN")
+    section = (12350, "001", "OPEN", "Staff")
     created_section = sections_dao.create_sections(course, [section])[0]
 
     res = client_post(client, user, "/api/sections/track/", {"course_id": 12350})
@@ -68,7 +68,7 @@ def test_track_section(client, user):
 
 def test_untrack_section(client, user):
     course = ("CS", 6840, "Algorithmic Game Theory")
-    section = (17376, "001", "OPEN")
+    section = (17376, "001", "CLOSED", "Staff")
     created_section = sections_dao.create_sections(course, [section])[0]
 
     client_post(client, user, "/api/sections/track/", {"course_id": 17376})
@@ -86,7 +86,7 @@ def test_untrack_section(client, user):
 
 def test_search_course(client, user):
     course = ("CS", 5430, "System Security")
-    section = (12350, "001", "OPEN")
+    section = (12350, "001", "OPEN", "Staff")
     sections_dao.create_sections(course, [section])[0]
 
     res = client_post(client, user, "/api/courses/search/", {"query": "CS"})
