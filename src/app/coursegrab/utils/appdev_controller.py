@@ -1,4 +1,5 @@
 from app.coursegrab.utils.base_controller import abc, BaseController
+from datetime import datetime
 from flask import jsonify
 
 # A REST-API controller that handles boilerplate for
@@ -16,6 +17,8 @@ class AppDevController(BaseController):
     def response(self, **kwargs):
         try:
             content = self.content(**kwargs)
-            return jsonify({"success": True, "data": content})
+            return jsonify({"success": True, "data": content, "timestamp": round(datetime.now().timestamp())})
         except Exception as e:
-            return jsonify({"success": False, "data": {"errors": [str(e)]}})
+            return jsonify(
+                {"success": False, "data": {"errors": [str(e)]}, "timestamp": round(datetime.now().timestamp())}
+            )
