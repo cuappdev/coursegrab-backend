@@ -80,7 +80,8 @@ python src/manage.py db upgrade
     "session_expiration": 1581435566,
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
-  }
+  },
+  "timestamp": 1581335566
 }
 ```
 
@@ -99,7 +100,8 @@ python src/manage.py db upgrade
     "session_expiration": 1581435566,
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
-  }
+  },
+  "timestamp": 1581335566
 }
 ```
 
@@ -134,6 +136,7 @@ python src/manage.py db upgrade
       "title": "CEE Undergraduate Research"
     }
   ],
+  "timestamp": 1581335566
 }
 ```
 
@@ -155,7 +158,8 @@ python src/manage.py db upgrade
 ```json
 {
   "success": true,
-  "data": null
+  "data": null,
+  "timestamp": 1581335566
 }
 ```
 
@@ -184,7 +188,8 @@ python src/manage.py db upgrade
     "status": "CLOSED",
     "subject_code": "CS",
     "title": "Data Structures and Functional Programming"
-  }
+  },
+  "timestamp": 1581335566
 }
 ```
 
@@ -213,7 +218,8 @@ python src/manage.py db upgrade
     "status": "OPEN",
     "subject_code": "CS",
     "title": "Data Structures and Functional Programming"
-  }
+  },
+  "timestamp": 1581335566
 }
 ```
 
@@ -249,6 +255,7 @@ python src/manage.py db upgrade
             "title": "Data Structures and Functional Programming"
         }
     ]
-  }
+  },
+  "timestamp": 1581335566
 }
 ```
