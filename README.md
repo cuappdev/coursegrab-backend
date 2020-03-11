@@ -15,8 +15,10 @@ pip install -r requirements.txt
 ```
 
 ## Environment Variables
+
 It's recommended to use [`direnv`](https://direnv.net).
 The required environment variables for this API are the following:
+
 ```bash
 export ANDROID_CLIENT_ID=""
 export IOS_CLIENT_ID=""
@@ -31,18 +33,21 @@ cp envrc.template .envrc
 ```
 
 ## Style
+
 **Flake 8**: Install [flake8](http://flake8.pycqa.org/en/latest/)
 
-**Black**: Either use [command line tool](https://black.readthedocs.io/en/stable/installation_and_usage.html) or use [editor extension](https://black.readthedocs.io/en/stable/editor_integration.html). 
+**Black**: Either use [command line tool](https://black.readthedocs.io/en/stable/installation_and_usage.html) or use [editor extension](https://black.readthedocs.io/en/stable/editor_integration.html).
 
 If using VS Code, install the 'Python' extension and include following snippet inside `settings.json`:
-```  json
+
+```json
 "python.linting.pylintEnabled": false,
 "python.linting.flake8Enabled": true,
 "python.formatting.provider": "black"
 ```
 
 ## Running the App
+
 To run the app:
 
 ```
@@ -50,29 +55,40 @@ python src/run.py
 ```
 
 ## Migrations
+
 ### Initialize migrations
+
 ```
-python src/manage.py db init 
+python src/manage.py db init
 ```
+
 ### Generate a migration
+
 ```
 python src/manage.py db migrate -m "Message describing migration"
 ```
+
 ### Run the migration
+
 ```
 python src/manage.py db upgrade
 ```
 
 ## Endpoints
+
 ### /api/session/initialize/• POST
+
 **Body:**
+
 ```json
 {
   "token": "<TOKEN received from Google>",
   "is_ios": true
 }
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -86,13 +102,17 @@ python src/manage.py db upgrade
 ```
 
 ### /api/session/update/• POST
+
 **Headers:**
+
 ```json
 {
   "Authorization": "Bearer <update_token>"
 }
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -106,13 +126,17 @@ python src/manage.py db upgrade
 ```
 
 ### /api/users/tracking/ • GET
+
 **Headers:**
+
 ```json
 {
   "Authorization": "Bearer <access_token>"
 }
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -141,20 +165,53 @@ python src/manage.py db upgrade
 ```
 
 ### /api/users/device-token/ • POST
+
 **Headers:**
+
 ```json
 {
   "Authorization": "Bearer <access_token>"
 }
 ```
+
 **Body:**
+
 ```json
 {
-  "is_ios": true,
   "device_token": "123abc456def"
 }
 ```
+
 **Example Response:**
+
+```json
+{
+  "success": true,
+  "data": null,
+  "timestamp": 1581335566
+}
+```
+
+### /api/users/notification/ • POST
+
+**Headers:**
+
+```json
+{
+  "Authorization": "Bearer <access_token>"
+}
+```
+
+**Body:**
+
+```json
+{
+  "notification": "ANDROID" || "IPHONE" || "EMAIL" || "NONE"
+}
+```
+
+**Example Response:**
+
 ```json
 {
   "success": true,
@@ -164,19 +221,25 @@ python src/manage.py db upgrade
 ```
 
 ### /api/sections/track/ • POST
+
 **Headers:**
+
 ```json
 {
   "Authorization": "Bearer <access_token>"
 }
 ```
+
 **Body:**
+
 ```json
 {
   "course_id": 12401
 }
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -194,19 +257,25 @@ python src/manage.py db upgrade
 ```
 
 ### /api/sections/untrack/ • POST
+
 **Headers:**
+
 ```json
 {
   "Authorization": "Bearer <access_token>"
 }
 ```
+
 **Body:**
+
 ```json
 {
   "course_id": 12401
 }
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -224,19 +293,25 @@ python src/manage.py db upgrade
 ```
 
 ### /api/courses/search/ • POST
+
 **Headers:**
+
 ```json
 {
   "Authorization": "Bearer <access_token>"
 }
 ```
+
 **Body:**
+
 ```json
 {
   "query": "cs 3110"
 }
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -245,15 +320,15 @@ python src/manage.py db upgrade
     "course_num": 3110,
     "title": "Object-Oriented Programming and Data Structures",
     "sections": [
-        {
-            "catalog_num": 12401,
-            "course_num": 3110,
-            "instructors": ["Staff"],
-            "status": "OPEN",
-            "section": "DIS 212 / TR 12:20pm - 1:10pm",
-            "subject_code": "CS",
-            "title": "Data Structures and Functional Programming"
-        }
+      {
+        "catalog_num": 12401,
+        "course_num": 3110,
+        "instructors": ["Staff"],
+        "status": "OPEN",
+        "section": "DIS 212 / TR 12:20pm - 1:10pm",
+        "subject_code": "CS",
+        "title": "Data Structures and Functional Programming"
+      }
     ]
   },
   "timestamp": 1581335566

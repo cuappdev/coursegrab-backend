@@ -98,9 +98,16 @@ def test_search_course(client, user):
 
 
 def test_update_device_token(client, user):
-    res = client_post(client, user, "/api/users/device-token/", {"is_ios": True, "device_token": "ABC123"})
+    res = client_post(client, user, "/api/users/device-token/", {"device_token": "ABC123"})
 
     assert res["success"]
 
-    assert user.is_ios
     assert user.device_token == "ABC123"
+
+
+def test_update_notification(client, user):
+    res = client_post(client, user, "/api/users/notification/", {"notification": "IPHONE"})
+
+    assert res["success"]
+
+    assert user.notification == "IPHONE"

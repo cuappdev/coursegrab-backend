@@ -6,6 +6,7 @@ from app.coursegrab.controllers.search_course_controller import *
 from app.coursegrab.controllers.track_section_controller import *
 from app.coursegrab.controllers.untrack_section_controller import *
 from app.coursegrab.controllers.update_device_token_controller import *
+from app.coursegrab.controllers.update_notification_controller import *
 from app.coursegrab.controllers.update_session_controller import *
 
 # CourseGrab Blueprint
@@ -19,6 +20,7 @@ controllers = [
     TrackSectionController(),
     UntrackSectionController(),
     UpdateDeviceTokenController(),
+    UpdateNotificationController(),
     UpdateSessionController(),
 ]
 

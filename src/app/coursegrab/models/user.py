@@ -22,7 +22,7 @@ class User(db.Model):
     session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
 
-    is_ios = db.Column(db.Boolean, nullable=True)
+    notification = db.Column(db.String, nullable=True)
     device_token = db.Column(db.String, nullable=True)
 
     sections = db.relationship("Section", secondary=users_to_sections, backref="users")
@@ -48,8 +48,8 @@ class User(db.Model):
             "device_token": self.device_token,
             "email": self.email,
             "first_name": self.first_name,
-            "is_ios": self.is_ios,
             "last_name": self.last_name,
+            "notification": self.notification,
         }
 
     def serialize_session(self):
