@@ -17,19 +17,7 @@ pip install -r requirements.txt
 ## Environment Variables
 
 It's recommended to use [`direnv`](https://direnv.net).
-The required environment variables for this API are the following:
-
-```bash
-export APNS_KEY_ID=""
-export APNS_AUTH_KEY_PATH=""
-export APNS_TEAM_ID=""
-export APNS_BUNDLE_ID=""
-export ANDROID_CLIENT_ID=""
-export IOS_CLIENT_ID=""
-export DB_FILENAME=""
-export PORT=5000
-export FLASK_ENV="development"
-```
+The required environment variables for this API are listed in envrc.template.
 
 To use `direnv` with this repository, run the following and set the variables appropriately.
 

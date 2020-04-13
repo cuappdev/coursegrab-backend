@@ -4,6 +4,7 @@ import threading
 from datetime import datetime
 from app.coursegrab.dao import sections_dao
 from app.coursegrab.utils.constants import OPEN, CLOSED, WAITLISTED, ARCHIVED, INVALID, ROOT_URL
+from app.coursegrab.utils.push_notifications import notify_users
 
 on_startup = True
 
@@ -14,7 +15,9 @@ def start_update():
         print("[{0}] Updating course statuses".format(datetime.now()))
         try:
             if not on_startup:
-                update_all_statuses()
+                updated_sections = update_all_statuses()
+                for section in updated_sections:
+                    notify_users(section)
             else:
                 on_startup = False
                 threading.Thread(None, refresh_classes).start()
@@ -147,6 +150,6 @@ def update_all_statuses():
                 if "open-status-archive" in open_status:
                     status = ARCHIVED
                 updated_section = sections_dao.update_status_by_catalog_num(catalog_num, status)
-                if updated_section:
+                if updated_section and status == OPEN:
                     updated_sections.append(updated_section)
     return updated_sections

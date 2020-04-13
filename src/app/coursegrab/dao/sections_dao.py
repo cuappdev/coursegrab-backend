@@ -35,3 +35,7 @@ def create_sections(course, section_lst):
             db.session.add(section)
     db.session.commit()
     return sections
+
+
+def get_users_tracking_section(catalog_num):
+    return User.query.filter(User.sections.any(catalog_num=catalog_num)).all()
