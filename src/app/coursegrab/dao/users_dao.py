@@ -66,10 +66,17 @@ def untrack_section(user_id, catalog_num):
     return section
 
 
-def update_device_token(user_id, is_ios, device_token):
+def update_device_token(user_id, device_token):
     user = get_user_by_id(user_id)
-    user.is_ios = is_ios
     user.device_token = device_token
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
+def update_notification(user_id, notification):
+    user = get_user_by_id(user_id)
+    user.notification = notification
     db.session.add(user)
     db.session.commit()
     return user

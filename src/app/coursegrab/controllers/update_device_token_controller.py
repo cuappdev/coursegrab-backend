@@ -12,6 +12,5 @@ class UpdateDeviceTokenController(AppDevController):
     def content(self, **kwargs):
         data = request.get_json()
         user = kwargs.get("user")
-        is_ios = data.get("is_ios")
         device_token = data.get("device_token")
-        user = users_dao.update_device_token(user.id, is_ios, device_token)
+        user = users_dao.update_device_token(user.id, device_token)
