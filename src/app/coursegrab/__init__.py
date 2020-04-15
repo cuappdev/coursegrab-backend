@@ -3,6 +3,8 @@ from app.coursegrab.controllers.hello_world_controller import *
 from app.coursegrab.controllers.initialize_session_controller import *
 from app.coursegrab.controllers.retrieve_tracking_controller import *
 from app.coursegrab.controllers.search_course_controller import *
+from app.coursegrab.controllers.send_android_notification_controller import *
+from app.coursegrab.controllers.send_ios_notification_controller import *
 from app.coursegrab.controllers.track_section_controller import *
 from app.coursegrab.controllers.untrack_section_controller import *
 from app.coursegrab.controllers.update_device_token_controller import *
@@ -17,6 +19,8 @@ controllers = [
     InitializeSessionController(),
     RetrieveTrackingController(),
     SearchCourseController(),
+    SendAndroidNotificationController(),
+    SendiOSNotificationController(),
     TrackSectionController(),
     UntrackSectionController(),
     UpdateDeviceTokenController(),

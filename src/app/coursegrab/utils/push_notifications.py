@@ -66,9 +66,11 @@ def send_ios_notification(device_tokens, payload_data):
             pass
 
     print("iOS : {0} messages sent successfully out of {1}".format(len(successful_tokens), len(device_tokens)))
+    return len(successful_tokens)
 
 
 def send_android_notification(device_tokens, payload):
-    message = messaging.MulticastMessage(data=payload, tokens=device_tokens)
+    message = messaging.MulticastMessage(data={"message": json.dumps(payload)}, tokens=device_tokens)
     response = messaging.send_multicast(message)
     print("Android : {0} messages sent successfully out of {1}".format(response.success_count, len(device_tokens)))
+    return response.success_count
