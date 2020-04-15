@@ -12,3 +12,6 @@ ANDROID = "ANDROID"
 IPHONE = "IPHONE"
 EMAIL = "EMAIL"
 NONE = "NONE"
+
+# Push Notification
+ALGORITHM = "ES256"

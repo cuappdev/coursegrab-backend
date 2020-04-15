@@ -1,4 +1,11 @@
-export ANDROID_CLIENT_ID=""
-export IOS_CLIENT_ID=""
-export DB_FILENAME=""
+export ANDROID_CLIENT_ID=FILL_IN
+export APNS_KEY_ID=""
+export APNS_AUTH_KEY_PATH=""
+export APNS_TEAM_ID=""
+export APNS_BUNDLE_ID=""
+export IOS_CLIENT_ID=FILL_IN
+export DB_FILENAME=FILL_IN
+export FLASK_ENV=development
+export KEYFILE_PATH=FILL_IN
 export PORT=5000
+export PROJECT_ID=FILL_IN
