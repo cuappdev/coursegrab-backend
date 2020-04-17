@@ -9,9 +9,12 @@ from os import environ
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
 
-f = open(environ["APNS_AUTH_KEY_PATH"])
-auth_key = f.read()
-f.close()
+try:
+    f = open(environ["APNS_AUTH_KEY_PATH"])
+    auth_key = f.read()
+    f.close()
+except:
+    pass
 
 firebase_app = initialize_app()
 
@@ -37,8 +40,20 @@ def notify_users(section):
 
 def create_payload(section):
     serialized_section = {**section.serialize(), "is_tracking": True}
-    response = {"section": serialized_section, "timestamp": round(datetime.now().timestamp())}
-    return json.dumps(response)
+
+    end_section_index = serialized_section["section"].find("/")
+    trimmed_section_name = serialized_section["section"][:end_section_index].strip()
+
+    title = "{} {} {} is Now Open".format(
+        serialized_section["subject_code"], serialized_section["course_num"], trimmed_section_name
+    )
+    response = {
+        "section": serialized_section,
+        "timestamp": round(datetime.now().timestamp()),
+        "title": title,
+        "body": "Open CourseGrab to log directly into Student Center and grab your spot!",
+    }
+    return response
 
 
 def send_ios_notification(device_tokens, payload_data):
@@ -78,7 +93,7 @@ def send_ios_notification(device_tokens, payload_data):
 
 
 def send_android_notification(device_tokens, payload):
-    message = messaging.MulticastMessage(data={"message": payload}, tokens=device_tokens)
+    message = messaging.MulticastMessage(data={"message": json.dumps(payload)}, tokens=device_tokens)
     response = messaging.send_multicast(message)
     print("Android : {0} messages sent successfully out of {1}".format(response.success_count, len(device_tokens)))
     return response.success_count
