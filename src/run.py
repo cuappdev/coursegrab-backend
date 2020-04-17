@@ -8,4 +8,4 @@ with app.app_context():
 start_update()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=environ["PORT"])
+    app.run(host="0.0.0.0", port=environ["PORT"], debug=False)

@@ -5,3 +5,4 @@ venv/
 .envrc
 *.pyc
 *.db
+*.p8

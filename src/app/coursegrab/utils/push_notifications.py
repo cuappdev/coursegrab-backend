@@ -2,6 +2,7 @@ import json
 import jwt
 import time
 from app.coursegrab.utils.constants import ALGORITHM, ANDROID, IPHONE
+from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
 from os import environ
@@ -27,10 +28,17 @@ def notify_users(section):
         elif user.notification == IPHONE:
             ios_tokens.append(user.device_token)
 
+    payload = create_payload(section)
     if android_tokens:
-        send_android_notification(android_tokens, section.serialize())
+        send_android_notification(android_tokens, payload)
     if ios_tokens:
-        send_ios_notification(ios_tokens, section.serialize())
+        send_ios_notification(ios_tokens, payload)
+
+
+def create_payload(section):
+    serialized_section = {**section.serialize(), "is_tracking": True}
+    response = {"section": serialized_section, "timestamp": round(datetime.now().timestamp())}
+    return json.dumps(response)
 
 
 def send_ios_notification(device_tokens, payload_data):
@@ -48,7 +56,7 @@ def send_ios_notification(device_tokens, payload_data):
         "authorization": "bearer {0}".format(token.decode("ascii")),
     }
 
-    payload_data = {"aps": {"alert": json.dumps(payload_data)}}
+    payload_data = {"aps": {"alert": payload_data, "badge": 1}}
     payload = json.dumps(payload_data).encode("utf-8")
 
     apn_url = "api.sandbox.push.apple.com:443" if environ["FLASK_ENV"] == "development" else "api.push.apple.com:443"
@@ -70,7 +78,7 @@ def send_ios_notification(device_tokens, payload_data):
 
 
 def send_android_notification(device_tokens, payload):
-    message = messaging.MulticastMessage(data={"message": json.dumps(payload)}, tokens=device_tokens)
+    message = messaging.MulticastMessage(data={"message": payload}, tokens=device_tokens)
     response = messaging.send_multicast(message)
     print("Android : {0} messages sent successfully out of {1}".format(response.success_count, len(device_tokens)))
     return response.success_count
