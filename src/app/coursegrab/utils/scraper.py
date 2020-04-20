@@ -2,7 +2,7 @@ import bs4
 import requests
 import threading
 from datetime import datetime
-from app.coursegrab.dao import sections_dao
+from app.coursegrab.dao import courses_dao, sections_dao, semesters_dao
 from app.coursegrab.utils.constants import OPEN, CLOSED, WAITLISTED, ARCHIVED, INVALID, ROOT_URL
 from app.coursegrab.utils.push_notifications import notify_users
 
@@ -29,6 +29,16 @@ def start_update():
 
 def refresh_classes():
     try:
+        print("[{0}] Checking for new semester".format(datetime.now()))
+        tracking = semesters_dao.get_current_semester()
+        current = current_semester()
+        # On app startup or new semester in roster
+        if tracking is None or tracking != current:
+            print("[{0}] Clearing information from previous semester".format(datetime.now()))
+            courses_dao.clear_table()
+            sections_dao.clear_table()
+            semesters_dao.update_current_semester(current)
+
         try:
             print("[{0}] Scraping classes".format(datetime.now()))
             catalog_tuples = scrape_classes()

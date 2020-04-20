@@ -39,3 +39,7 @@ def create_sections(course, section_lst):
 
 def get_users_tracking_section(catalog_num):
     return User.query.filter(User.sections.any(catalog_num=catalog_num)).all()
+
+
+def clear_table():
+    Section.query.delete()
