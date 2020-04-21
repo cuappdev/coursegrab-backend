@@ -6,6 +6,8 @@ from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
 from os import environ
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import *
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
 
@@ -97,3 +99,28 @@ def send_android_notification(device_tokens, payload):
     response = messaging.send_multicast(message)
     print("Android : {0} messages sent successfully out of {1}".format(response.success_count, len(device_tokens)))
     return response.success_count
+
+
+def send_emails(section, emails):
+    f = open("./src/app/coursegrab/utils/message.html", "r")
+
+    message = Mail(
+        from_email=("mailer@coursegrab.me", "CourseGrab"),
+        subject="Course ID {0}: {1}, {2} is now open!".format(
+            section["catalog_num"], section["title"], section["section"]
+        ),
+        html_content=f.read(),
+    )
+
+    personalization = Personalization()
+    personalization.add_to(Email("mailer@coursegrab.me"))
+    for bcc_email in emails:
+        personalization.add_bcc(Email(bcc_email))
+
+    message.add_personalization(personalization)
+
+    try:
+        sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
+        sendgrid_client.send(message)
+    except Exception as e:
+        print(e.body)
