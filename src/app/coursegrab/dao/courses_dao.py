@@ -19,3 +19,7 @@ def create_course(subject_code, course_num, title):
 
 def search_courses(query):
     return Course.query.filter(Course.search_string.ilike("%{}%".format(query))).limit(20)
+
+
+def clear_table():
+    Course.query.delete()
