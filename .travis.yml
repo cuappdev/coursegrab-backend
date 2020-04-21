@@ -6,3 +6,4 @@ script:
 env:
   global:
   - DB_FILENAME='coursegrab.db'
+  - APNS_AUTH_KEY_PATH=''

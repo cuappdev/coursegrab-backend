@@ -111,3 +111,11 @@ def test_update_notification(client, user):
     assert res["success"]
 
     assert user.notification == "IPHONE"
+
+
+def test_turn_off_notification(client, user):
+    res = client_post(client, user, "/api/users/notification/", {"notification": "NONE"})
+
+    assert res["success"]
+
+    assert user.notification is None
