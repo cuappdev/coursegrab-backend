@@ -43,3 +43,5 @@ def get_users_tracking_section(catalog_num):
 
 def clear_table():
     Section.query.delete()
+    db.session.execute(users_to_sections.delete())
+    db.session.commit()
