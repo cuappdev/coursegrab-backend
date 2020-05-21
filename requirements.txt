@@ -31,7 +31,7 @@ googleapis-common-protos==1.51.0
 grpcio==1.28.1
 h2==2.6.2
 hpack==3.0.0
-httplib2==0.17.2
+httplib2==0.18.0
 hyper==0.7.0
 hyperframe==3.2.0
 identify==1.4.7
