@@ -25,6 +25,9 @@ class InitializeSessionController(AppDevController):
 
             # ID token is valid. Get the user's Google Account information.
             email, first_name, last_name = id_info["email"], id_info["given_name"], id_info["family_name"]
+            if email[email.find("@") + 1 :] != "cornell.edu":
+                raise Exception("You must use a Cornell email")
+
             created, user = users_dao.create_user(email, first_name, last_name)
             if not created:
                 user.refresh_session()
