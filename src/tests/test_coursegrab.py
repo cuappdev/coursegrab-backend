@@ -47,7 +47,7 @@ def test_retrieve_tracking_none(client, user):
     res = client_get(client, user, "/api/users/tracking/")
 
     assert res["success"]
-    assert res["data"] == []
+    assert res["data"]["sections"] == []
 
 
 def test_track_section(client, user):
@@ -63,7 +63,7 @@ def test_track_section(client, user):
     res = client_get(client, user, "/api/users/tracking/")
 
     assert res["success"]
-    assert res["data"] == [{**created_section.serialize(), "is_tracking": True}]
+    assert res["data"]["sections"] == [{**created_section.serialize(), "is_tracking": True}]
 
 
 def test_untrack_section(client, user):
@@ -81,7 +81,7 @@ def test_untrack_section(client, user):
     res = client_get(client, user, "/api/users/tracking/")
 
     assert res["success"]
-    assert res["data"] == []
+    assert res["data"]["sections"] == []
 
 
 def test_search_course(client, user):
@@ -94,7 +94,7 @@ def test_search_course(client, user):
     assert res["success"]
 
     created_course = courses_dao.get_course_by_subject_and_course_num("CS", 5430)
-    assert res["data"][0] == created_course.serialize_with_user(user.id)
+    assert res["data"]["courses"][0] == created_course.serialize_with_user(user.id)
 
 
 def test_update_device_token(client, user):
