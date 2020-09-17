@@ -30,11 +30,12 @@ class Section(db.Model):
             "subject_code": course.subject_code,
         }
 
+    # Adds `is_tracking` field
     def serialize_with_user(self, user_id):
         user = User.query.get(user_id)
-        course = self.serialize()
-        course["is_tracking"] = True if self in user.sections else False
-        return course
+        section = self.serialize()
+        section["is_tracking"] = True if self in user.sections else False
+        return section
 
     def __eq__(self, obj):
         return (

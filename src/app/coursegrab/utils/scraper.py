@@ -32,7 +32,8 @@ def refresh_classes():
         print("[{0}] Checking for new semester".format(datetime.now()))
         tracking = semesters_dao.get_current_semester()
         current = current_semester()
-        # On app startup or new semester in roster
+
+        # new semester in roster
         if tracking is None or tracking != current:
             print("[{0}] Clearing information from previous semester".format(datetime.now()))
             courses_dao.clear_table()
