@@ -47,6 +47,12 @@ To run the app:
 python src/run.py
 ```
 
+## Running tests
+
+```
+pytest
+```
+
 ## Migrations
 
 ### Initialize migrations
@@ -133,28 +139,30 @@ python src/manage.py db upgrade
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "catalog_num": 12401,
-      "course_num": 3110,
-      "instructors": ["Nate Foster (jnf27)"],
-      "is_tracking": true,
-      "section": "LEC 001 / TR 12:20pm - 1:10pm",
-      "status": "WAITLISTED",
-      "subject_code": "CS",
-      "title": "Data Structures and Functional Programming"
-    },
-    {
-      "catalog_num": 12403,
-      "course_num": 4090,
-      "instructors": [],
-      "is_tracking": true,
-      "section": "IND 606 / TBA",
-      "status": "OPEN",
-      "subject_code": "CEE",
-      "title": "CEE Undergraduate Research"
-    }
-  ],
+  "data": {
+    "sections": [
+      {
+        "catalog_num": 12401,
+        "course_num": 3110,
+        "instructors": ["Nate Foster (jnf27)"],
+        "is_tracking": true,
+        "section": "LEC 001 / TR 12:20pm - 1:10pm",
+        "status": "WAITLISTED",
+        "subject_code": "CS",
+        "title": "Data Structures and Functional Programming"
+      },
+      {
+        "catalog_num": 12403,
+        "course_num": 4090,
+        "instructors": [],
+        "is_tracking": true,
+        "section": "IND 606 / TBA",
+        "status": "OPEN",
+        "subject_code": "CEE",
+        "title": "CEE Undergraduate Research"
+      }
+    ]
+  },
   "timestamp": 1581335566
 }
 ```
@@ -313,19 +321,23 @@ python src/manage.py db upgrade
 {
   "success": true,
   "data": {
-    "subject_code": "CS",
-    "course_num": 3110,
-    "title": "Object-Oriented Programming and Data Structures",
-    "sections": [
+    "courses": [
       {
-        "catalog_num": 12401,
-        "course_num": 3110,
-        "instructors": ["Staff"],
-        "is_tracking": false,
-        "status": "OPEN",
-        "section": "DIS 212 / TR 12:20pm - 1:10pm",
         "subject_code": "CS",
-        "title": "Data Structures and Functional Programming"
+        "course_num": 3110,
+        "title": "Object-Oriented Programming and Data Structures",
+        "sections": [
+          {
+            "catalog_num": 12401,
+            "course_num": 3110,
+            "instructors": ["Staff"],
+            "is_tracking": false,
+            "status": "OPEN",
+            "section": "DIS 212 / TR 12:20pm - 1:10pm",
+            "subject_code": "CS",
+            "title": "Data Structures and Functional Programming"
+          }
+        ]
       }
     ]
   },
