@@ -339,7 +339,8 @@ python src/manage.py db upgrade
           }
         ]
       }
-    ]
+    ],
+    "query": "cs 3110"
   },
   "timestamp": 1581335566
 }

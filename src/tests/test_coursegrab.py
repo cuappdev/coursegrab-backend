@@ -89,12 +89,14 @@ def test_search_course(client, user):
     section = (12350, "001", "OPEN", "Staff")
     sections_dao.create_sections(course, [section])[0]
 
-    res = client_post(client, user, "/api/courses/search/", {"query": "CS"})
+    query = "CS"
+    res = client_post(client, user, "/api/courses/search/", {"query": query})
 
     assert res["success"]
 
     created_course = courses_dao.get_course_by_subject_and_course_num("CS", 5430)
     assert res["data"]["courses"][0] == created_course.serialize_with_user(user.id)
+    assert res["data"]["query"] == query
 
 
 def test_update_device_token(client, user):
