@@ -1,4 +1,3 @@
-import datetime
 from . import *
 
 
@@ -15,27 +14,11 @@ def get_tracked_sections(user_id):
 
 
 def create_user(email, first_name, last_name):
-    optional_user = get_user_by_email(email)
-    if optional_user:
-        return False, optional_user
+    user = get_user_by_email(email)  # User credentials already exists
+    if user:
+        return user
     user = User(email=email, first_name=first_name, last_name=last_name)
     db.session.add(user)
-    db.session.commit()
-    return True, user
-
-
-def verify_session(session_token):
-    user = User.query.filter(User.session_token == session_token).first()
-    if not user or datetime.datetime.now() > user.session_expiration:
-        raise Exception("Invalid session token.")
-    return user
-
-
-def refresh_session(update_token):
-    user = User.query.filter(User.update_token == update_token).first()
-    if not user:
-        raise Exception("Invalid update token.")
-    user.refresh_session()
     db.session.commit()
     return user
 
@@ -66,12 +49,14 @@ def untrack_section(user_id, catalog_num):
     return section
 
 
-def update_device_token(user_id, device_token):
+# Get all device_tokens for a specific device_type
+def get_user_device_tokens(user_id, device_type):
     user = get_user_by_id(user_id)
-    user.device_token = device_token
-    db.session.add(user)
-    db.session.commit()
-    return user
+    tokens = []
+    for session in user.sessions:
+        if session.device_type == device_type and session.device_token:
+            tokens.append(session.device_token)
+    return tokens
 
 
 def update_notification(user_id, notification):

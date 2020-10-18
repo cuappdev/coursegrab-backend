@@ -1,7 +1,7 @@
 import json
 import jwt
 import time
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, IPHONE
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, IOS
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
@@ -10,6 +10,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
+from app.coursegrab.dao.users_dao import get_user_device_tokens
 
 try:
     f = open(environ["APNS_AUTH_KEY_PATH"])
@@ -26,13 +27,15 @@ def notify_users(section):
 
     android_tokens = []
     ios_tokens = []
+    # emails = []
 
     for user in users:
         if user.notification == ANDROID:
-            android_tokens.append(user.device_token)
-        elif user.notification == IPHONE:
-            ios_tokens.append(user.device_token)
-
+            android_tokens.extend(get_user_device_tokens(user.id, ANDROID))
+        elif user.notification == IOS:
+            ios_tokens.extend(get_user_device_tokens(user.id, IOS))
+        # elif user.notification == EMAIL:
+        #     emails.append(user.e)
     payload = create_payload(section)
     if android_tokens:
         send_android_notification(android_tokens, payload)
