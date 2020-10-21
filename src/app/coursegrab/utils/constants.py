@@ -9,9 +9,12 @@ INVALID = "INVALID"
 
 # Possible values for notification
 ANDROID = "ANDROID"
-IPHONE = "IPHONE"
+IOS = "IOS"
 EMAIL = "EMAIL"
 NONE = "NONE"
+
+# Possible values for device type
+WEB = "WEB"  # + ANDROID, IOS
 
 # Push Notification
 ALGORITHM = "ES256"

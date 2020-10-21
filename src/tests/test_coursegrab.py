@@ -1,7 +1,8 @@
 import json
 import pytest
 from app import app, db
-from app.coursegrab.dao import courses_dao, sections_dao, users_dao
+from app.coursegrab.dao import courses_dao, sections_dao, Session, sessions_dao, User, users_dao
+from app.coursegrab.utils.constants import IOS
 from .helpers import client_get, client_post
 
 
@@ -20,77 +21,92 @@ def client():
 
 @pytest.fixture
 def user():
-    _, user = users_dao.create_user("test@email.com", "First", "Last")
-    return user
+    return users_dao.create_user("test@email.com", "First", "Last")
 
 
-def test_hello_world(client, user):
-    res = client_get(client, user, "/api/hello/")
+@pytest.fixture
+def session(user):
+    return sessions_dao.create_session(user.id, IOS)
+
+
+def test_hello_world(client, session):
+    res = client_get(client, session, "/api/hello/")
 
     assert res["success"]
     assert res["data"] == {"message": "Hello, world!"}
 
 
-def test_update_session(client, user):
+def test_update_session(client, session):
     req = client.post(
         "/api/session/update/",
         content_type="application/json",
-        headers={"Authorization": "Bearer " + user.update_token},
+        headers={"Authorization": "Bearer " + session.update_token},
     )
     res = json.loads(req.data)
 
     assert res["success"]
-    assert res["data"] == user.serialize_session()
+    assert res["data"] == session.serialize_session()
 
 
-def test_retrieve_tracking_none(client, user):
-    res = client_get(client, user, "/api/users/tracking/")
+def test_cascade_delete_session(client, user, session):
+    assert User.query.count() == 1
+    assert Session.query.count() == 1
+
+    db.session.delete(user)
+    db.session.commit()
+
+    assert User.query.count() == 0
+    assert Session.query.count() == 0
+
+
+def test_retrieve_tracking_none(client, session):
+    res = client_get(client, session, "/api/users/tracking/")
 
     assert res["success"]
     assert res["data"]["sections"] == []
 
 
-def test_track_section(client, user):
+def test_track_section(client, session):
     course = ("CS", 5430, "System Security")
     section = (12350, "001", "OPEN", "Staff")
     created_section = sections_dao.create_sections(course, [section])[0]
 
-    res = client_post(client, user, "/api/sections/track/", {"course_id": 12350})
+    res = client_post(client, session, "/api/sections/track/", {"course_id": 12350})
 
     assert res["success"]
     assert res["data"] == {**created_section.serialize(), "is_tracking": True}
 
-    res = client_get(client, user, "/api/users/tracking/")
+    res = client_get(client, session, "/api/users/tracking/")
 
     assert res["success"]
     assert res["data"]["sections"] == [{**created_section.serialize(), "is_tracking": True}]
 
 
-def test_untrack_section(client, user):
+def test_untrack_section(client, session):
     course = ("CS", 6840, "Algorithmic Game Theory")
     section = (17376, "001", "CLOSED", "Staff")
     created_section = sections_dao.create_sections(course, [section])[0]
 
-    client_post(client, user, "/api/sections/track/", {"course_id": 17376})
+    client_post(client, session, "/api/sections/track/", {"course_id": 17376})
 
-    res = client_post(client, user, "/api/sections/untrack/", {"course_id": 17376})
+    res = client_post(client, session, "/api/sections/untrack/", {"course_id": 17376})
 
     assert res["success"]
     assert res["data"] == {**created_section.serialize(), "is_tracking": False}
 
-    res = client_get(client, user, "/api/users/tracking/")
+    res = client_get(client, session, "/api/users/tracking/")
 
     assert res["success"]
     assert res["data"]["sections"] == []
 
 
-def test_search_course(client, user):
+def test_search_course(client, session, user):
     course = ("CS", 5430, "System Security")
     section = (12350, "001", "OPEN", "Staff")
     sections_dao.create_sections(course, [section])[0]
 
     query = "CS"
-    res = client_post(client, user, "/api/courses/search/", {"query": query})
+    res = client_post(client, session, "/api/courses/search/", {"query": query})
 
     assert res["success"]
 
@@ -99,25 +115,46 @@ def test_search_course(client, user):
     assert res["data"]["query"] == query
 
 
-def test_update_device_token(client, user):
-    res = client_post(client, user, "/api/users/device-token/", {"device_token": "ABC123"})
+def test_update_device_token(client, session, user):
+    res = client_post(client, session, "/api/users/device-token/", {"device_token": "ABC123"})
+    session_from_user = [s.serialize() for s in user.sessions]
 
     assert res["success"]
 
-    assert user.device_token == "ABC123"
+    assert session.device_token == "ABC123"
+    assert session_from_user[0]["device_token"] == "ABC123"
 
 
-def test_update_notification(client, user):
-    res = client_post(client, user, "/api/users/notification/", {"notification": "IPHONE"})
+def test_update_notification(client, session, user):
+    res = client_post(client, session, "/api/users/notification/", {"notification": "IOS"})
 
     assert res["success"]
 
-    assert user.notification == "IPHONE"
+    assert user.notification == "IOS"
 
 
-def test_turn_off_notification(client, user):
-    res = client_post(client, user, "/api/users/notification/", {"notification": "NONE"})
+def test_turn_off_notification(client, session, user):
+    res = client_post(client, session, "/api/users/notification/", {"notification": "NONE"})
 
     assert res["success"]
 
     assert user.notification is None
+
+
+def test_create_session_existing_device_token(client, session, user):
+    device_token = "ABC123"
+    res = client_post(client, session, "/api/users/device-token/", {"device_token": device_token})
+
+    assert res["success"]
+
+    new_session = sessions_dao.create_session(user.id, session.device_type, device_token)
+
+    assert new_session.id == session.id
+    assert new_session.session_token == session.session_token
+    assert new_session.device_token == device_token
+
+
+def test_create_session_no_device_token(client, session, user):
+    sessions_dao.create_session(user.id, session.device_type)
+
+    assert len(user.sessions) == 2

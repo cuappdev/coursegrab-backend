@@ -11,6 +11,6 @@ class UpdateDeviceTokenController(AppDevController):
     @authorize_user
     def content(self, **kwargs):
         data = request.get_json()
-        user = kwargs.get("user")
         device_token = data.get("device_token")
-        user = users_dao.update_device_token(user.id, device_token)
+        session = kwargs.get("session")
+        session = sessions_dao.update_device_token(session.id, device_token)

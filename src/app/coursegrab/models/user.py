@@ -1,7 +1,5 @@
-import datetime
-import hashlib
-import os
 from app import db
+from ..utils.constants import EMAIL
 
 
 users_to_sections = db.Table(
@@ -17,44 +15,22 @@ class User(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.Integer, nullable=False)
-
-    session_token = db.Column(db.String, nullable=False, unique=True)
-    session_expiration = db.Column(db.DateTime, nullable=False)
-    update_token = db.Column(db.String, nullable=False, unique=True)
-
     notification = db.Column(db.String, nullable=True)
-    device_token = db.Column(db.String, nullable=True)
 
     sections = db.relationship("Section", secondary=users_to_sections, backref="users")
+    sessions = db.relationship("Session", back_populates="user", cascade="all, delete")
 
     def __init__(self, **kwargs):
         self.email = kwargs.get("email")
         self.first_name = kwargs.get("first_name")
         self.last_name = kwargs.get("last_name")
-        self.refresh_session()
-
-    def generate_token(self):
-        return hashlib.sha1(os.urandom(64)).hexdigest()
-
-    def refresh_session(self):
-        self.session_token = self.generate_token()
-        self.session_expiration = datetime.datetime.now() + datetime.timedelta(days=1)
-        self.update_token = self.generate_token()
+        self.notification = EMAIL  # Default notifications set to EMAIL
 
     def serialize(self):
         return {
-            **self.serialize_session(),
             "id": self.id,
-            "device_token": self.device_token,
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "notification": self.notification,
-        }
-
-    def serialize_session(self):
-        return {
-            "session_token": self.session_token,
-            "session_expiration": round(self.session_expiration.timestamp()),
-            "update_token": self.update_token,
         }

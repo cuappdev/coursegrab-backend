@@ -73,6 +73,27 @@ python src/manage.py db migrate -m "Message describing migration"
 python src/manage.py db upgrade
 ```
 
+## User Sessions
+
+All user sessions are managed with `Session` model. This allows multiple sessions to be associated with one user, allowing users to maintain sessions on multiple devices.
+
+The big drawback of this implementation is that we allow the users to create essentially an unlimited number of sessions since there is no good way to identify the device or browser that the user is trying to sign in from. For instance, theoretically, if a user signs in from an incognito browser 5 times, that would create 5 sessions. This is not ideal because we have limitations to our backend's size.
+
+### Refresh Sessions
+
+To somewhat address this problem, depending on the information submitted, we refresh the existing sessions rather than creating a new one. There are two cases when a session is refreshed.
+
+1. Frontend sends in a valid `update_token` through `/api/session/update/` POST request.
+2. Frontend sends in the `device_token` through `/api/session/initialize/` GET request and there exists an old session associated with that `device_token`. This means that the user has subscribed to mobile push notifications on a specific device (i.e. we have access to `device_token`) and user is logging in from that same device. If there doesn't exist an old session, we create a new session for this device.
+
+If we have access to the device's unique `device_token`, we can identify which device the user is trying to login from. Since we know that there can only be one instance of the app on a specific mobile device, we limit the number of sessions (=1) associated to that device.
+
+### Clean-up Sessions
+
+[WIP] Handle invalid device_token errors
+
+[WIP] Script to periodically clean up outdated sessions
+
 ## Endpoints
 
 ### /api/session/initialize/• POST
@@ -82,7 +103,8 @@ python src/manage.py db upgrade
 ```json
 {
   "token": "<TOKEN received from Google>",
-  "is_ios": true
+  "device_type": "ANDROID" || "IOS" || "WEB",
+  "device_token": "123abc456def" || null
 }
 ```
 
@@ -209,7 +231,7 @@ python src/manage.py db upgrade
 
 ```json
 {
-  "notification": "ANDROID" || "IPHONE" || "EMAIL" || "NONE"
+  "notification": "ANDROID" || "IOS" || "EMAIL" || "NONE"
 }
 ```
 

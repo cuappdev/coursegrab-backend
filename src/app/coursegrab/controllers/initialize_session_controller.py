@@ -2,7 +2,7 @@ from os import environ
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from . import *
-from app import db
+from ..utils.constants import ANDROID, IOS
 
 
 class InitializeSessionController(AppDevController):
@@ -15,9 +15,15 @@ class InitializeSessionController(AppDevController):
     def content(self, **kwargs):
         data = request.get_json()
         token = data.get("token")
-        is_ios = data.get("is_ios")
+        device_type = data.get("device_type")
+        device_token = data.get("device_token")
         try:
-            client_id = environ["IOS_CLIENT_ID"] if is_ios else environ["ANDROID_CLIENT_ID"]
+            if device_type == IOS:
+                client_id = environ["IOS_CLIENT_ID"]
+            elif device_type == ANDROID:
+                client_id = environ["ANDROID_CLIENT_ID"]
+            # else:  # device_type == WEB
+            #     client_id =
             id_info = id_token.verify_oauth2_token(token, requests.Request(), client_id)
 
             if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
@@ -28,12 +34,10 @@ class InitializeSessionController(AppDevController):
             if email != "coursegrabappstore@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
                 raise Exception("You must use a Cornell email")
 
-            created, user = users_dao.create_user(email, first_name, last_name)
-            if not created:
-                user.refresh_session()
-                db.session.commit()
+            user = users_dao.create_user(email, first_name, last_name, device_type)
+            session = sessions_dao.create_session(user.id, device_type, device_token)
 
-            return user.serialize_session()
+            return session.serialize_session()
 
         except ValueError:
             raise Exception("Invalid token")

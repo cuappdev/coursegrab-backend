@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import request
-from app.coursegrab.dao.users_dao import verify_session
+from app.coursegrab.dao.sessions_dao import verify_session
 
 
 def extract_bearer(f):
@@ -22,6 +22,7 @@ def authorize_user(f):
     @extract_bearer
     def inner(*args, **kwargs):
         session_token = kwargs.get("bearer_token")
-        return f(user=verify_session(session_token), *args, **kwargs)
+        user, session = verify_session(session_token)
+        return f(user=user, session=session, *args, **kwargs)
 
     return inner
