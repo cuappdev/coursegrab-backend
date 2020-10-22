@@ -10,6 +10,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
+from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
 from app.coursegrab.dao.users_dao import get_user_device_tokens
 
 try:
@@ -88,24 +89,43 @@ def send_ios_notification(device_tokens, payload_data):
     conn = HTTP20Connection(apn_url, force_proto="h2")
 
     successful_tokens = []
+    expired_tokens = []
     for token in device_tokens:
         try:
-            path = "/3/device/%s" % (token)
+            path = f"/3/device/{token}"
             conn.request("POST", path, payload, headers=request_headers)
             resp = conn.get_response()
             if resp.status == 200:
                 successful_tokens.append(token)
+            elif resp.status == 410:  # APNS status code for inactive device token
+                expired_tokens.append(token)
         except:
             pass
+
+    if expired_tokens:
+        delete_session_expired_device_tokens(expired_tokens)
 
     print("iOS : {0} messages sent successfully out of {1}".format(len(successful_tokens), len(device_tokens)))
     return len(successful_tokens)
 
 
 def send_android_notification(device_tokens, payload):
-    message = messaging.MulticastMessage(data={"message": json.dumps(payload)}, tokens=device_tokens)
-    response = messaging.send_multicast(message)
-    print("Android : {0} messages sent successfully out of {1}".format(response.success_count, len(device_tokens)))
+    successful_tokens = []
+    expired_tokens = []
+
+    for token in device_tokens:
+        try:
+            message = messaging.Message(data={"message": json.dumps(payload)}, token=token)
+            response = messaging.send(message)
+            if response.success:
+                successful_tokens.append(token)
+        except messaging.UnregisteredError:  # FCM Exception for invalid registration token (i.e. device token)
+            expired_tokens.append(token)
+
+    if expired_tokens:
+        delete_session_expired_device_tokens(expired_tokens)
+
+    print("Android : {0} messages sent successfully out of {1}".format(len(successful_tokens), len(device_tokens)))
     return response.success_count
 
 

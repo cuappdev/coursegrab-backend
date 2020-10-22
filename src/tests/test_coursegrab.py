@@ -158,3 +158,13 @@ def test_create_session_no_device_token(client, session, user):
     sessions_dao.create_session(user.id, session.device_type)
 
     assert len(user.sessions) == 2
+
+
+def test_delete_session_expired_device_token(client, session, user):
+    new_session = sessions_dao.create_session(user.id, session.device_type)
+
+    assert Session.query.count() == 2
+
+    sessions_dao.delete_session_expired_device_tokens([session.device_token, new_session.device_token])
+
+    assert Session.query.count() == 0
