@@ -51,3 +51,11 @@ def update_device_token(session_id, device_token):
     db.session.add(session)
     db.session.commit()
     return session
+
+
+# If there is an expired device_token, it is no longer in use (probably because the user
+# deleted the app). Therefore, we no longer need a session associated with this device_token.
+def delete_session_expired_device_tokens(tokens):
+    for token in tokens:
+        Session.query.filter(Session.device_token == token).delete()
+    db.session.commit()
