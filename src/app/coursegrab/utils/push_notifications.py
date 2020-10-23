@@ -1,7 +1,7 @@
 import json
 import jwt
 import time
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, IOS
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
@@ -23,24 +23,29 @@ firebase_app = initialize_app()
 
 
 def notify_users(section):
-    users = get_users_tracking_section(section.catalog_num)
+    try:
+        users = get_users_tracking_section(section.catalog_num)
 
-    android_tokens = []
-    ios_tokens = []
-    # emails = []
+        android_tokens = []
+        ios_tokens = []
+        emails = []
 
-    for user in users:
-        if user.notification == ANDROID:
-            android_tokens.extend(get_user_device_tokens(user.id, ANDROID))
-        elif user.notification == IOS:
-            ios_tokens.extend(get_user_device_tokens(user.id, IOS))
-        # elif user.notification == EMAIL:
-        #     emails.append(user.e)
-    payload = create_payload(section)
-    if android_tokens:
-        send_android_notification(android_tokens, payload)
-    if ios_tokens:
-        send_ios_notification(ios_tokens, payload)
+        for user in users:
+            if user.notification == ANDROID:
+                android_tokens.extend(get_user_device_tokens(user.id, ANDROID))
+            elif user.notification == IOS:
+                ios_tokens.extend(get_user_device_tokens(user.id, IOS))
+            elif user.notification == EMAIL:
+                emails.append(user.email)
+        payload = create_payload(section)
+        if android_tokens:
+            send_android_notification(android_tokens, payload)
+        if ios_tokens:
+            send_ios_notification(ios_tokens, payload)
+        if emails:
+            send_emails(section.serialize(), emails)
+    except Exception as e:
+        print("Error while notifying users:", e)
 
 
 def create_payload(section):
@@ -126,4 +131,4 @@ def send_emails(section, emails):
         sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
         sendgrid_client.send(message)
     except Exception as e:
-        print(e.body)
+        print("Error while sending email notifications:", e)
