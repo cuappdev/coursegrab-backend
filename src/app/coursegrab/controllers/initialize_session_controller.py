@@ -34,7 +34,7 @@ class InitializeSessionController(AppDevController):
             if email != "coursegrabappstore@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
                 raise Exception("You must use a Cornell email")
 
-            user = users_dao.create_user(email, first_name, last_name, device_type)
+            user = users_dao.create_user(email, first_name, last_name)
             session = sessions_dao.create_session(user.id, device_type, device_token)
 
             return session.serialize_session()
