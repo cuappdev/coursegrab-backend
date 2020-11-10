@@ -93,6 +93,8 @@ def scrape_classes():
                 pattern = section_tag.find_all("li", class_="meeting-pattern")[0]
                 days_tag = pattern.find_all("span", class_="pattern-only")
                 time_tag = pattern.find_all("time", class_="time")
+                mode_tag = section_tag.find_all("span", class_="instr-mode")
+                mode = mode_tag[0].getText()[18:] if mode_tag else None  # Exclude "Instruction Mode: "
                 schedule = []
                 if days_tag:
                     schedule.append(days_tag[0].getText().strip())
@@ -124,7 +126,7 @@ def scrape_classes():
                 if "open-status-archive" in open_status:
                     status = ARCHIVED
 
-                sections_arr.append((catalog_num, section, status, instructor_str))
+                sections_arr.append((catalog_num, section, status, instructor_str, mode))
             catalog_tuples.append((course, sections_arr))
     return catalog_tuples
 
