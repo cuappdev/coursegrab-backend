@@ -18,3 +18,6 @@ WEB = "WEB"  # + ANDROID, IOS
 
 # Push Notification
 ALGORITHM = "ES256"
+
+# Number of search results to return
+NUM_SEARCH_RESULT = 50
