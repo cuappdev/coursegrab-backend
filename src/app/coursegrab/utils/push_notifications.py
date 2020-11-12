@@ -55,14 +55,14 @@ def create_payload(section):
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
 
-    title = "{} {} {} is Now Open".format(
-        serialized_section["subject_code"], serialized_section["course_num"], trimmed_section_name
+    title = (
+        f"{serialized_section['subject_code']} {serialized_section['course_num']} {trimmed_section_name} is Now Open"
     )
     response = {
         "section": serialized_section,
         "timestamp": round(datetime.now().timestamp()),
         "title": title,
-        "body": "Open CourseGrab to log directly into Student Center and grab your spot!",
+        "body": f"Class Nbr: {serialized_section['catalog_num']}. Grab your spot right now!",
     }
     return response
 
@@ -101,11 +101,10 @@ def send_ios_notification(device_tokens, payload_data):
                 expired_tokens.append(token)
         except:
             pass
-
     if expired_tokens:
         delete_session_expired_device_tokens(expired_tokens)
 
-    print("iOS : {0} messages sent successfully out of {1}".format(len(successful_tokens), len(device_tokens)))
+    print(f"iOS : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
     return len(successful_tokens)
 
 
@@ -125,18 +124,20 @@ def send_android_notification(device_tokens, payload):
     if expired_tokens:
         delete_session_expired_device_tokens(expired_tokens)
 
-    print("Android : {0} messages sent successfully out of {1}".format(len(successful_tokens), len(device_tokens)))
+    print(f"Android : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
     return response.success_count
 
 
 def send_emails(section, emails):
+    serialized_section = {**section.serialize(), "is_tracking": True}
+    end_section_index = serialized_section["section"].find("/")
+    trimmed_section_name = serialized_section["section"][:end_section_index].strip()
+
     f = open("./src/app/coursegrab/utils/message.html", "r")
 
     message = Mail(
         from_email=("mailer@coursegrab.me", "CourseGrab"),
-        subject="Course ID {0}: {1}, {2} is now open!".format(
-            section["catalog_num"], section["title"], section["section"]
-        ),
+        subject=f"{serialized_section['subject_code']} {serialized_section['course_num']} {trimmed_section_name} is Now Open",
         html_content=f.read(),
     )
 
