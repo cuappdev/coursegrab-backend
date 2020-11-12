@@ -14,7 +14,7 @@ class Course(db.Model):
         self.subject_code = kwargs.get("subject_code")
         self.course_num = kwargs.get("course_num")
         self.title = kwargs.get("title")
-        self.search_string = "{} {} {}".format(self.subject_code, self.course_num, self.title)
+        self.search_string = f"{self.subject_code}{self.course_num}{self.title.replace(' ', '')}"
 
     def serialize(self):
         return {

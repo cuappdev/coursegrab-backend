@@ -1,4 +1,5 @@
 from . import *
+from ..utils.constants import NUM_SEARCH_RESULT
 
 
 def get_course_by_subject_and_course_num(subject_code, course_num):
@@ -18,7 +19,7 @@ def create_course(subject_code, course_num, title):
 
 
 def search_courses(query):
-    return Course.query.filter(Course.search_string.ilike("%{}%".format(query))).limit(20)
+    return Course.query.filter(Course.search_string.ilike("%{}%".format(query))).limit(NUM_SEARCH_RESULT)
 
 
 def clear_table():

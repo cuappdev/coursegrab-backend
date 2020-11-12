@@ -16,5 +16,5 @@ class SearchCourseController(AppDevController):
         if not query:
             raise Exception("Must provide query.")
 
-        courses = courses_dao.search_courses(query)
+        courses = courses_dao.search_courses(query.replace(" ", ""))
         return {"courses": [course.serialize_with_user(user.id) for course in courses], "query": query}
