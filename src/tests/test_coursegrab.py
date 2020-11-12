@@ -74,12 +74,12 @@ def test_track_section(client, session):
     res = client_post(client, session, "/api/sections/track/", {"course_id": 12350})
 
     assert res["success"]
-    assert res["data"] == {**created_section.serialize(), "is_tracking": True}
+    assert res["data"] == {**created_section.serialize(), "num_tracking": 1, "is_tracking": True}
 
     res = client_get(client, session, "/api/users/tracking/")
 
     assert res["success"]
-    assert res["data"]["sections"] == [{**created_section.serialize(), "is_tracking": True}]
+    assert res["data"]["sections"] == [{**created_section.serialize(), "num_tracking": 1, "is_tracking": True}]
 
 
 def test_untrack_section(client, session):
@@ -92,7 +92,7 @@ def test_untrack_section(client, session):
     res = client_post(client, session, "/api/sections/untrack/", {"course_id": 17376})
 
     assert res["success"]
-    assert res["data"] == {**created_section.serialize(), "is_tracking": False}
+    assert res["data"] == {**created_section.serialize(), "num_tracking": 0, "is_tracking": False}
 
     res = client_get(client, session, "/api/users/tracking/")
 

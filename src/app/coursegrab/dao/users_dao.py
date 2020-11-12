@@ -31,6 +31,7 @@ def track_section(user_id, catalog_num):
     if section in user.sections:
         raise Exception("You are already tracking this section.")
 
+    section.num_tracking += 1
     user.sections.append(section)
     db.session.commit()
     return section
@@ -44,6 +45,7 @@ def untrack_section(user_id, catalog_num):
     if section not in user.sections:
         raise Exception("You aren't tracking this section.")
 
+    section.num_tracking -= 1
     user.sections.remove(section)
     db.session.commit()
     return section
