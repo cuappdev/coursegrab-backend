@@ -24,7 +24,7 @@ def start_update():
         except:
             pass
     finally:
-        threading.Timer(300, start_update).start()
+        threading.Timer(180, start_update).start()
 
 
 def refresh_classes():
