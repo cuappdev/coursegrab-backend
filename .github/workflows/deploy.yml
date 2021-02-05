@@ -2,7 +2,7 @@ name: Docker Build & Push and Deploy
 
 on:
     push:
-        branches: [master]
+        branches: [release]
 jobs:
     path-context:
         runs-on: ubuntu-latest
