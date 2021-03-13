@@ -92,12 +92,17 @@ If we have access to the device's unique `device_token`, we can identify which d
 
 1. One way to clean up the sessions table is to delete any sessions associated with invalid device tokens.
    \
-   A user's device token becomes invalid if the user deletes the app from their device. Note that even if the user downloads the app again on the same device, the device token will not be identical. If we know that the device token is invalid, there is no need to keep the associated session because it will never be used again.
+   A user's device token becomes invalid (most likely) in two cases:
+      
+    - if the user deletes the app from their device. Note that even if the user downloads the app again on the same device, the device token will not be identical. 
+    - Whenever the token provider (i.e. Apple or Firebase) decides that they want to change the token
+
+   If we know that the device token is invalid, there is no need to keep the associated session because it will never be used again.
    \
    We can find out if a device token is expired by examining the response when we send out a push notification to that `device_token`.
 
-- [IOS] [APNS response status code](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html#//apple_ref/doc/uid/TP40008194-CH11-SW15) for invalid device token is `410`.
-- [ANDROID] [Firebase exception](https://firebase.google.com/docs/reference/admin/python/firebase_admin.messaging#unregisterederror) for invalid device token is `UnregisteredError`. NOTE: Device token is equivalent to 'registration token' in Firebase terminology.
+    - [IOS] [APNS response status code](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html#//apple_ref/doc/uid/TP40008194-CH11-SW15) for invalid device token is `410`.
+    - [ANDROID] [Firebase exception](https://firebase.google.com/docs/reference/admin/python/firebase_admin.messaging#unregisterederror) for invalid device token is `UnregisteredError`. NOTE: Device token is equivalent to 'registration token' in Firebase terminology.
 
 2. [WIP] Script to periodically clean up outdated sessions
 
