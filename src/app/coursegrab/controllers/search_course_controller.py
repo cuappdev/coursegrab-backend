@@ -8,7 +8,6 @@ class SearchCourseController(AppDevController):
     def get_methods(self):
         return ["POST"]
 
-    @authorize_user
     def content(self, **kwargs):
         data = request.get_json()
         user = kwargs.get("user")
