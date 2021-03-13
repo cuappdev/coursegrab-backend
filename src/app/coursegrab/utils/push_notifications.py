@@ -24,8 +24,10 @@ firebase_app = initialize_app()
 
 
 def notify_users(section):
+    print(f"Sending notifications for section with catalog number: {section.catalog_num}")
     try:
         users = get_users_tracking_section(section.catalog_num)
+        print(f"NOTIFICATIONS : {len(users)} users tracking {section.catalog_num}")
 
         android_tokens = []
         ios_tokens = []
@@ -68,6 +70,8 @@ def create_payload(section):
 
 
 def send_ios_notification(device_tokens, payload_data):
+    print(f"NOTIFICATIONS : Sending notifications to IOS users")
+
     token = jwt.encode(
         {"iss": environ["APNS_TEAM_ID"], "iat": time.time()},
         auth_key,
@@ -109,6 +113,8 @@ def send_ios_notification(device_tokens, payload_data):
 
 
 def send_android_notification(device_tokens, payload):
+    print(f"NOTIFICATIONS : Sending notifications to ANDROID users")
+
     successful_tokens = []
     expired_tokens = []
 
@@ -116,19 +122,23 @@ def send_android_notification(device_tokens, payload):
         try:
             message = messaging.Message(data={"message": json.dumps(payload)}, token=token)
             response = messaging.send(message)
-            if response.success:
+            if response:
                 successful_tokens.append(token)
         except messaging.UnregisteredError:  # FCM Exception for invalid registration token (i.e. device token)
             expired_tokens.append(token)
+        else:
+            continue
 
     if expired_tokens:
         delete_session_expired_device_tokens(expired_tokens)
 
     print(f"Android : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
-    return response.success_count
+    return len(successful_tokens)
 
 
 def send_emails(section, emails):
+    print(f"NOTIFICATIONS : Sending notifications to EMAIL users")
+
     serialized_section = {**section.serialize(), "is_tracking": True}
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
