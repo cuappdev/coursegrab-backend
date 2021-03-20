@@ -24,11 +24,7 @@ def start_update():
         except:
             pass
     finally:
-<<<<<<< HEAD
-        threading.Timer(180, start_update).start()
-=======
         threading.Timer(0, start_update).start()  # temporary fix
->>>>>>> Many many hotfixes to make things work for add drop
 
 
 def refresh_classes():

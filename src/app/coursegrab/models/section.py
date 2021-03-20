@@ -38,9 +38,14 @@ class Section(db.Model):
 
     # Adds `is_tracking` field
     def serialize_with_user(self, user_id):
-        user = User.query.get(user_id)
         section = self.serialize()
-        section["is_tracking"] = True if self in user.sections else False
+        section["is_tracking"] = False # Default to False
+
+        # If valid user id is provided, check if the user is tracking the section
+        if (user_id != -1):
+            user = User.query.get(user_id)
+            section["is_tracking"] = True if self in user.sections else False
+        
         return section
 
     def __eq__(self, obj):
