@@ -17,11 +17,14 @@ class InitializeSessionController(AppDevController):
         token = data.get("token")
         device_type = data.get("device_type")
         device_token = data.get("device_token")
+        notification = None  # temporary fix
         try:
             if device_type == IOS:
                 client_id = environ["IOS_CLIENT_ID"]
+                notification = IOS  # temporary fix
             elif device_type == ANDROID:
                 client_id = environ["ANDROID_CLIENT_ID"]
+                notification = ANDROID  # temporary fix
             # else:  # device_type == WEB
             #     client_id =
             id_info = id_token.verify_oauth2_token(token, requests.Request(), client_id)
@@ -36,7 +39,7 @@ class InitializeSessionController(AppDevController):
 
             user = users_dao.create_user(email, first_name, last_name)
             session = sessions_dao.create_session(user.id, device_type, device_token)
-
+            user = users_dao.update_notification(user.id, notification)  # temporary fix
             return session.serialize_session()
 
         except ValueError:
