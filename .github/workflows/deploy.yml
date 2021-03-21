@@ -33,5 +33,9 @@ jobs:
                   username: ${{ secrets.SERVER_USERNAME }}
                   key: ${{ secrets.SERVER_KEY }}
                   script: |
+<<<<<<< HEAD
+=======
+                      export IMAGE_TAG=${{ steps.vars.outputs.sha_short }}
+>>>>>>> master
                       cd docker-compose
                       docker stack deploy -c docker-compose.yml the-stack
