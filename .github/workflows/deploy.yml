@@ -25,7 +25,7 @@ jobs:
                   context: .
                   file: ./Dockerfile
                   push: true
-                  tags: ${{ secrets.DOCKER_USERNAME }}/coursegrab:${{ steps.vars.outputs.sha_short }}
+                  tags: cornellappdev/coursegrab:${{ steps.vars.outputs.sha_short }}
             - name: Remote ssh and deploy
               uses: appleboy/ssh-action@master
               with:
