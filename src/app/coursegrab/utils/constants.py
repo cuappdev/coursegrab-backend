@@ -21,3 +21,6 @@ ALGORITHM = "ES256"
 
 # Number of search results to return
 NUM_SEARCH_RESULT = 50
+
+# Coursegrab notifier email
+COURSEGRAB_EMAIL = "coursegrab.noreply@gmail.com"

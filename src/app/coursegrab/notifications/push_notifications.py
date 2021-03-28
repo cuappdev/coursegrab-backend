@@ -1,26 +1,52 @@
 import json
 import jwt
 import time
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS
+import base64
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_EMAIL
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
-from os import environ
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import *
+from os import environ, path
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from email.mime.text import MIMEText
 
+from . import *
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
 from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
 from app.coursegrab.dao.users_dao import get_user_device_tokens
 
+# Initialize APNS
 try:
     f = open(environ["APNS_AUTH_KEY_PATH"])
     auth_key = f.read()
     f.close()
 except:
-    pass
+    print("Error initializing APNS")
 
+# Initialize FCM
 firebase_app = initialize_app()
+
+# Initialize Gmail service
+creds = None
+if path.exists(environ["GMAIL_API_TOKEN"]): # Try reading token
+    creds = Credentials.from_authorized_user_file(environ["GMAIL_API_TOKEN"], SCOPES)
+if not creds or not creds.valid: # If there are no (valid) credentials available, try refreshing
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    else:
+        print("Error initializing Gmail service")
+gmail_service = build('gmail', 'v1', credentials=creds)
+gmail_message = gmail_service.users().messages()
+
+# Initialize email body
+try:
+    f = open("./src/app/coursegrab/notifications/message.html", "r")
+    email_body = f.read()
+    f.close()
+except:
+    print("Error getting email body")
 
 
 def notify_users(section):
@@ -46,12 +72,13 @@ def notify_users(section):
         if ios_tokens:
             send_ios_notification(ios_tokens, payload)
         if emails:
-            send_emails(section.serialize(), emails)
+            send_emails(section, emails)
     except Exception as e:
         print("Error while notifying users:", e)
 
 
 def create_payload(section):
+    """Creates notification payload for Android and iOS"""
     serialized_section = {**section.serialize(), "is_tracking": True}
 
     end_section_index = serialized_section["section"].find("/")
@@ -109,7 +136,6 @@ def send_ios_notification(device_tokens, payload_data):
         delete_session_expired_device_tokens(expired_tokens)
 
     print(f"iOS : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
-    return len(successful_tokens)
 
 
 def send_android_notification(device_tokens, payload):
@@ -133,7 +159,6 @@ def send_android_notification(device_tokens, payload):
         delete_session_expired_device_tokens(expired_tokens)
 
     print(f"Android : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
-    return len(successful_tokens)
 
 
 def send_emails(section, emails):
@@ -142,24 +167,12 @@ def send_emails(section, emails):
     serialized_section = {**section.serialize(), "is_tracking": True}
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
+    subject = f"{serialized_section['subject_code']} {serialized_section['course_num']} {trimmed_section_name} is Now Open"
 
-    f = open("./src/app/coursegrab/utils/message.html", "r")
+    message = MIMEText(email_body, "html")
+    message['to'] = COURSEGRAB_EMAIL        # Send to ourselves
+    message['bcc'] = ",".join(emails)       # Add users' emails to bcc
+    message['subject'] = subject
 
-    message = Mail(
-        from_email=("mailer@coursegrab.me", "CourseGrab"),
-        subject=f"{serialized_section['subject_code']} {serialized_section['course_num']} {trimmed_section_name} is Now Open",
-        html_content=f.read(),
-    )
-
-    personalization = Personalization()
-    personalization.add_to(Email("mailer@coursegrab.me"))
-    for bcc_email in emails:
-        personalization.add_bcc(Email(bcc_email))
-
-    message.add_personalization(personalization)
-
-    try:
-        sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
-        sendgrid_client.send(message)
-    except Exception as e:
-        print("Error while sending email notifications:", e)
+    gmail_body = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+    gmail_message.send(userId="me", body=gmail_body).execute()
