@@ -26,3 +26,19 @@ def authorize_user(f):
         return f(user=user, session=session, *args, **kwargs)
 
     return inner
+
+def authorize_user_selective(f):
+    """
+    If no auth header is present, don't throw any error.
+    If auth header is present, verify the session.
+    """
+    @wraps(f)
+    def inner(*args, **kwargs):
+        auth_header = request.headers.get("Authorization")
+        if auth_header is None:
+            return f(*args, **kwargs)
+        bearer_token = auth_header.replace("Bearer ", "").strip()
+        user, session = verify_session(bearer_token)
+        return f(user=user, session=session, *args, **kwargs)
+
+    return inner
