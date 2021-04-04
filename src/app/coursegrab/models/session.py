@@ -13,6 +13,7 @@ class Session(db.Model):
     session_token = db.Column(db.String, nullable=False, unique=True)
     session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
+    last_used = db.Column(db.DateTime, nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
     user = db.relationship("User", back_populates="sessions")
@@ -30,6 +31,7 @@ class Session(db.Model):
         self.session_token = self.generate_token()
         self.session_expiration = datetime.datetime.now() + datetime.timedelta(days=1)
         self.update_token = self.generate_token()
+        self.last_used = datetime.datetime.now()
 
     def serialize(self):
         return {
@@ -46,4 +48,5 @@ class Session(db.Model):
             "session_token": self.session_token,
             "session_expiration": round(self.session_expiration.timestamp()),
             "update_token": self.update_token,
+            "last_used": round(self.last_used.timestamp())
         }
