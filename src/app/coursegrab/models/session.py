@@ -10,10 +10,10 @@ class Session(db.Model):
     device_token = db.Column(db.String, nullable=True)
     device_type = db.Column(db.String, nullable=True)
 
+    last_used = db.Column(db.DateTime, nullable = False)
     session_token = db.Column(db.String, nullable=False, unique=True)
     session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
-    last_used = db.Column(db.DateTime, nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
     user = db.relationship("User", back_populates="sessions")

@@ -3,7 +3,7 @@ from app import app, db
 from app.coursegrab.models.session import Session
 import datetime
 
-# Deletes user sessions that have been last used 10 weeks or more ago
+""" Deletes user sessions that have been last used 10 weeks or more ago """
 def delete_old_sessions():
   sessions = Session.query.all()
   outdated_sessions = []
@@ -14,7 +14,7 @@ def delete_old_sessions():
   db.session.commit()
   return outdated_sessions
 
-# Test delete old sessions function
+""" Test delete old sessions function """
 def test():
   new_session = Session(device_token="test", device_type="PHONE", user_id=1)
   db.session.add(new_session)
