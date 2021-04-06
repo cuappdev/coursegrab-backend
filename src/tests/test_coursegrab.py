@@ -1,6 +1,8 @@
 import json
 import pytest
 from app import app, db
+import datetime
+from delete_old_sessions import delete_old_sessions
 from app.coursegrab.dao import courses_dao, sections_dao, Session, sessions_dao, User, users_dao
 from app.coursegrab.utils.constants import IOS
 from .helpers import client_get, client_post
@@ -168,3 +170,16 @@ def test_delete_session_expired_device_token(client, session, user):
     sessions_dao.delete_session_expired_device_tokens([session.device_token, new_session.device_token])
 
     assert Session.query.count() == 0
+
+def test_delete_old_sessions(client, session, user):
+  new_session = sessions_dao.create_session(user.id, session.device_type)
+  db.session.add(new_session)
+  assert delete_old_sessions() == []
+
+  new_session.last_used = datetime.datetime.now() - datetime.timedelta(weeks=11)
+  assert delete_old_sessions() == [new_session.serialize()]
+  
+  last_session = sessions_dao.create_session(user.id, session.device_type)
+  db.session.add(last_session)
+  last_session.last_used = datetime.datetime.now() - datetime.timedelta(weeks=10)
+  assert delete_old_sessions() == [last_session.serialize()]
