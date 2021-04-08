@@ -10,6 +10,7 @@ class Session(db.Model):
     device_token = db.Column(db.String, nullable=True)
     device_type = db.Column(db.String, nullable=True)
 
+    last_used = db.Column(db.DateTime, nullable=False)
     session_token = db.Column(db.String, nullable=False, unique=True)
     session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
@@ -30,6 +31,7 @@ class Session(db.Model):
         self.session_token = self.generate_token()
         self.session_expiration = datetime.datetime.now() + datetime.timedelta(days=1)
         self.update_token = self.generate_token()
+        self.last_used = datetime.datetime.now()
 
     def serialize(self):
         return {
@@ -39,11 +41,12 @@ class Session(db.Model):
             "device_type": self.device_type,
             "user_id": self.user_id,
             "user": self.user,
+            "last_used": round(self.last_used.timestamp())
         }
 
     def serialize_session(self):
         return {
             "session_token": self.session_token,
             "session_expiration": round(self.session_expiration.timestamp()),
-            "update_token": self.update_token,
+            "update_token": self.update_token
         }
