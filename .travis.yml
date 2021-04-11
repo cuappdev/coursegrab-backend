@@ -7,3 +7,5 @@ env:
   global:
   - DB_FILENAME='coursegrab.db'
   - APNS_AUTH_KEY_PATH=''
+  - GMAIL_API_CREDENTIALS=''
+  - GMAIL_API_TOKEN=''
