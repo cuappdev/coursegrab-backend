@@ -4,7 +4,7 @@ import threading
 from datetime import datetime
 from app.coursegrab.dao import courses_dao, sections_dao, semesters_dao
 from app.coursegrab.utils.constants import OPEN, CLOSED, WAITLISTED, ARCHIVED, INVALID, ROOT_URL
-from app.coursegrab.utils.push_notifications import notify_users
+from app.coursegrab.notifications.push_notifications import notify_users
 
 on_startup = True
 
