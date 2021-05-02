@@ -2,17 +2,14 @@ import json
 import jwt
 import time
 import base64
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_EMAIL
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_EMAIL, MAX_BCC_SIZE
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
 from os import environ, path
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from email.mime.text import MIMEText
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import *
 
-from . import *
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
 from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
 from app.coursegrab.dao.users_dao import get_user_device_tokens
@@ -28,17 +25,11 @@ except:
 # Initialize FCM
 firebase_app = initialize_app()
 
-# Initialize Gmail service
-creds = None
-if path.exists(environ["GMAIL_API_TOKEN"]): # Try reading token
-    creds = Credentials.from_authorized_user_file(environ["GMAIL_API_TOKEN"], SCOPES)
-if not creds or not creds.valid: # If there are no (valid) credentials available, try refreshing
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        print("Error initializing Gmail service")
-gmail_service = build('gmail', 'v1', credentials=creds)
-gmail_message = gmail_service.users().messages()
+# Initialize SendGrid client
+try:
+    sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
+except:
+    print("Error initializing SendGrid")
 
 # Initialize email body
 try:
@@ -165,14 +156,38 @@ def send_emails(section, emails):
     print(f"NOTIFICATIONS : Sending notifications to EMAIL users")
 
     serialized_section = {**section.serialize(), "is_tracking": True}
+    subject_code = serialized_section['subject_code']
+    course_num = serialized_section['course_num']
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
-    subject = f"{serialized_section['subject_code']} {serialized_section['course_num']} {trimmed_section_name} is Now Open"
 
-    message = MIMEText(email_body, "html")
-    message['to'] = COURSEGRAB_EMAIL        # Send to ourselves
-    message['bcc'] = ",".join(emails)       # Add users' emails to bcc
-    message['subject'] = subject
+    # SendGrid has a limit of 1000 total recipients (to + cc + bcc) per request. 
+    # We have to use up 1 out of 1000 to send the email to ourselves. Thus we have 999 emails left to fill up with user's emails
+    # in the bcc section. So we partition the emails into chunks of size 999 max. (e.g. email_chunks = [ [999 emails], [21 emails] ])
+    email_chunks = [emails[ind:ind + MAX_BCC_SIZE] for ind in range(0, len(emails), MAX_BCC_SIZE)]
 
-    gmail_body = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
-    gmail_message.send(userId="me", body=gmail_body).execute()
+    try:
+        # Send separate email for each chunk
+        for chunk in email_chunks:
+            send_single_email(subject_code, course_num, trimmed_section_name, chunk)
+    except Exception as e:
+        print("Error while sending email notifications:", e)
+
+
+def send_single_email (subject_code, course_num, trimmed_section_name, email_chunk):
+    """Send email notification to single chunk of user emails (max 999 bcc emails)"""
+    message = Mail(
+        from_email=(COURSEGRAB_EMAIL, "CourseGrab"),
+        subject=f"{subject_code} {course_num} {trimmed_section_name} is Now Open",
+        html_content=email_body,
+    )
+
+    personalization = Personalization()
+    personalization.add_to(Email(COURSEGRAB_EMAIL))   # Send to ourselves
+    for bcc_email in email_chunk:                     # Add users' emails to bcc
+        personalization.add_bcc(Email(bcc_email))
+
+    message.add_personalization(personalization)
+
+    sendgrid_client.send(message)
+    
