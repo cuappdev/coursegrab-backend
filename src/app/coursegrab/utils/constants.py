@@ -8,13 +8,14 @@ ARCHIVED = "ARCHIVED"
 INVALID = "INVALID"
 
 # Possible values for notification
-ANDROID = "ANDROID"
-IOS = "IOS"
+MOBILE = "MOBILE"
 EMAIL = "EMAIL"
-NONE = "NONE"
+NONE = "NONE" # DEPRECATED!!!!
 
 # Possible values for device type
-WEB = "WEB"  # + ANDROID, IOS
+WEB = "WEB"
+ANDROID = "ANDROID"
+IOS = "IOS"
 
 # Push Notification
 ALGORITHM = "ES256"

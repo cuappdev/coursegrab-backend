@@ -14,6 +14,7 @@ class UpdateNotificationController(AppDevController):
         data = request.get_json()
         user = kwargs.get("user")
 
+        # DEPRECATED!!!!
         # NONE is a constant imported from constants.py with string value "None"
         # Following line of code converts the NONE="None" string value into Python's null value None
         notification = None if data.get("notification") == NONE else data.get("notification")

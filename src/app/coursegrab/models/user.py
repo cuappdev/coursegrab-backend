@@ -1,4 +1,5 @@
 from app import db
+from ..utils.constants import EMAIL
 
 
 users_to_sections = db.Table(
@@ -23,7 +24,7 @@ class User(db.Model):
         self.email = kwargs.get("email")
         self.first_name = kwargs.get("first_name")
         self.last_name = kwargs.get("last_name")
-        self.notification = None  # Default notifications set to None
+        self.notification = EMAIL  # Default notifications set to EMAIL
 
     def serialize(self):
         return {
