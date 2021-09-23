@@ -6,3 +6,5 @@ venv/
 *.pyc
 *.db
 *.p8
+gmail_credentials.json
+gmail_token.json
