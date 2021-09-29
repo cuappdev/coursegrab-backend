@@ -20,9 +20,14 @@ def create_course(subject_code, course_num, title):
 
 def search_courses(query):
     results = Course.query.filter(Course.search_string.ilike("%{}%".format(query))).limit(NUM_SEARCH_RESULT)
-    results = sorted(results, key = lambda r : r.search_string.lower().index(query))
+    results = sorted(results, key = lambda r : find_query_index(r, query))
     return results
 
+def find_query_index(course, key):
+    try: 
+        return course.search_string.lower().index(key) 
+    except(Error): 
+        return -1
 
 def clear_table():
     Course.query.delete()
