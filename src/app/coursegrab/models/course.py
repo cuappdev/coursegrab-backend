@@ -18,6 +18,7 @@ class Course(db.Model):
 
     def serialize(self):
         return {
+            "id": self.id,
             "subject_code": self.subject_code,
             "course_num": self.course_num,
             "title": self.title,
@@ -27,6 +28,7 @@ class Course(db.Model):
     # Adds `is_tracking` field for each section
     def serialize_with_user(self, user_id):
         return {
+            "id": self.id,
             "subject_code": self.subject_code,
             "course_num": self.course_num,
             "title": self.title,
