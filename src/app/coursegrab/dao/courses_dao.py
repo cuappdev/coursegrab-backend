@@ -32,6 +32,5 @@ def find_query_index(course, key):
     except(ValueError): 
         return -1
 
-
 def clear_table():
     Course.query.delete()
