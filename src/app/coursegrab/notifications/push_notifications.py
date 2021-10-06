@@ -1,11 +1,12 @@
 import json
 import jwt
 import time
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS
+import base64
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_EMAIL, MAX_BCC_SIZE
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
-from os import environ
+from os import environ, path
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 
@@ -13,14 +14,30 @@ from app.coursegrab.dao.sections_dao import get_users_tracking_section
 from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
 from app.coursegrab.dao.users_dao import get_user_device_tokens
 
+# Initialize APNS
 try:
     f = open(environ["APNS_AUTH_KEY_PATH"])
     auth_key = f.read()
     f.close()
 except:
-    pass
+    print("Error initializing APNS")
 
+# Initialize FCM
 firebase_app = initialize_app()
+
+# Initialize SendGrid client
+try:
+    sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
+except:
+    print("Error initializing SendGrid")
+
+# Initialize email body
+try:
+    f = open("./src/app/coursegrab/notifications/message.html", "r")
+    email_body = f.read()
+    f.close()
+except:
+    print("Error getting email body")
 
 
 def notify_users(section):
@@ -46,12 +63,13 @@ def notify_users(section):
         if ios_tokens:
             send_ios_notification(ios_tokens, payload)
         if emails:
-            send_emails(section.serialize(), emails)
+            send_emails(section, emails)
     except Exception as e:
         print("Error while notifying users:", e)
 
 
 def create_payload(section):
+    """Creates notification payload for Android and iOS"""
     serialized_section = {**section.serialize(), "is_tracking": True}
 
     end_section_index = serialized_section["section"].find("/")
@@ -109,7 +127,6 @@ def send_ios_notification(device_tokens, payload_data):
         delete_session_expired_device_tokens(expired_tokens)
 
     print(f"iOS : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
-    return len(successful_tokens)
 
 
 def send_android_notification(device_tokens, payload):
@@ -133,33 +150,44 @@ def send_android_notification(device_tokens, payload):
         delete_session_expired_device_tokens(expired_tokens)
 
     print(f"Android : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
-    return len(successful_tokens)
 
 
 def send_emails(section, emails):
     print(f"NOTIFICATIONS : Sending notifications to EMAIL users")
 
     serialized_section = {**section.serialize(), "is_tracking": True}
+    subject_code = serialized_section['subject_code']
+    course_num = serialized_section['course_num']
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
 
-    f = open("./src/app/coursegrab/utils/message.html", "r")
+    # SendGrid has a limit of 1000 total recipients (to + cc + bcc) per request. 
+    # We have to use up 1 out of 1000 to send the email to ourselves. Thus we have 999 emails left to fill up with user's emails
+    # in the bcc section. So we partition the emails into chunks of size 999 max. (e.g. email_chunks = [ [999 emails], [21 emails] ])
+    email_chunks = [emails[ind:ind + MAX_BCC_SIZE] for ind in range(0, len(emails), MAX_BCC_SIZE)]
 
+    try:
+        # Send separate email for each chunk
+        for chunk in email_chunks:
+            send_single_email(subject_code, course_num, trimmed_section_name, chunk)
+    except Exception as e:
+        print("Error while sending email notifications:", e)
+
+
+def send_single_email (subject_code, course_num, trimmed_section_name, email_chunk):
+    """Send email notification to single chunk of user emails (max 999 bcc emails)"""
     message = Mail(
-        from_email=("mailer@coursegrab.me", "CourseGrab"),
-        subject=f"{serialized_section['subject_code']} {serialized_section['course_num']} {trimmed_section_name} is Now Open",
-        html_content=f.read(),
+        from_email=(COURSEGRAB_EMAIL, "CourseGrab"),
+        subject=f"{subject_code} {course_num} {trimmed_section_name} is Now Open",
+        html_content=email_body,
     )
 
     personalization = Personalization()
-    personalization.add_to(Email("mailer@coursegrab.me"))
-    for bcc_email in emails:
+    personalization.add_to(Email(COURSEGRAB_EMAIL))   # Send to ourselves
+    for bcc_email in email_chunk:                     # Add users' emails to bcc
         personalization.add_bcc(Email(bcc_email))
 
     message.add_personalization(personalization)
 
-    try:
-        sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
-        sendgrid_client.send(message)
-    except Exception as e:
-        print("Error while sending email notifications:", e)
+    sendgrid_client.send(message)
+    

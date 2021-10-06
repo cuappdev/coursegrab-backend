@@ -1,6 +1,6 @@
 from . import *
 from ..models.section import Section
-from ..utils.push_notifications import create_payload, send_android_notification
+from ..notifications.push_notifications import create_payload, send_android_notification
 
 
 class SendAndroidNotificationController(AppDevController):
