@@ -2,8 +2,8 @@ __pycache__/
 .cache/
 venv/
 
-.env
 .envrc
+.env
 *.pyc
 *.db
 *.p8
