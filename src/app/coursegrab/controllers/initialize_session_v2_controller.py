@@ -2,12 +2,12 @@ from os import environ
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from . import *
-from ..utils.constants import ANDROID, IOS, MOBILE
+from ..utils.constants import IOS
 
 
-class InitializeSessionController(AppDevController):
+class InitializeSessionV2Controller(AppDevController):
     def get_path(self):
-        return "/session/initialize/"
+        return "/session/initialize/v2/"
 
     def get_methods(self):
         return ["POST"]
@@ -17,29 +17,26 @@ class InitializeSessionController(AppDevController):
         token = data.get("token")
         device_type = data.get("device_type")
         device_token = data.get("device_token")
+        given_name = data.get("given_name")
+        family_name = data.get("family_name")
         try:
             if device_type == IOS:
                 client_id = environ["IOS_CLIENT_ID"]
-            elif device_type == ANDROID:
+            else:  # device_type is ANDROID or WEB
                 client_id = environ["FIREBASE_CLIENT_ID"]
-
+            
             id_info = id_token.verify_oauth2_token(token, requests.Request(), client_id)
-
             if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
                 raise ValueError("Wrong issuer.")
 
             # ID token is valid. Get the user's Google Account information.
-            email, first_name, last_name = id_info["email"], id_info["given_name"], id_info["family_name"]
+            email, first_name, last_name = id_info.get("email"), id_info.get("given_name", given_name), id_info.get("family_name", family_name)
             if email != "coursegrabappstore@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
                 raise Exception("You must use a Cornell email")
 
-            user = users_dao.create_user(email, first_name, last_name)
+            user = users_dao.create_user(email, first_name, last_name) # Default notification mode = EMAIL
             session = sessions_dao.create_session(user.id, device_type, device_token)
-
-            # temporary fix: force update user's notification preference 
-            # (only old ios/android apps should be using this endpoint. no web interaction)
-            user = users_dao.update_notification(user.id, MOBILE)  
-            return session.serialize_session()
+            return session.serialize_session_v2()
 
         except ValueError:
             raise Exception("Invalid token")

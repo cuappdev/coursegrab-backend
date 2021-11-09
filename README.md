@@ -134,6 +134,34 @@ If we have access to the device's unique `device_token`, we can identify which d
 }
 ```
 
+
+### /api/session/initialize/v2/• POST
+
+**Body:**
+
+```json
+{
+  "token": "<TOKEN received from Google>",
+  "device_type": "ANDROID" || "IOS" || "WEB",
+  "device_token": "123abc456def" || null
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "session_expiration": 1581435566,
+    "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
+    "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c",
+    "notification_mode": "MOBILE" || "EMAIL"
+  },
+  "timestamp": 1581335566
+}
+```
+
 ### /api/session/update/• POST
 
 **Headers:**
@@ -153,6 +181,31 @@ If we have access to the device's unique `device_token`, we can identify which d
     "session_expiration": 1581435566,
     "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
     "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c"
+  },
+  "timestamp": 1581335566
+}
+```
+
+### /api/session/update/v2/• POST
+
+**Headers:**
+
+```json
+{
+  "Authorization": "Bearer <update_token>"
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "session_expiration": 1581435566,
+    "session_token": "3c9e0ee538eaa570b7bc0847f18eab66703cc41f",
+    "update_token": "d9c3427bd6537131a5d0e8c8fa1d59e764644c2c",
+    "notification_mode": "MOBILE" || "EMAIL"
   },
   "timestamp": 1581335566
 }

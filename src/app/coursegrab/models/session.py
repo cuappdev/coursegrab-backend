@@ -50,3 +50,9 @@ class Session(db.Model):
             "session_expiration": round(self.session_expiration.timestamp()),
             "update_token": self.update_token
         }
+
+    def serialize_session_v2(self):
+        return {
+            **self.serialize_session(),
+            "notification": self.user.notification
+        }

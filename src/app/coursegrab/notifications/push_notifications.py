@@ -51,9 +51,8 @@ def notify_users(section):
         emails = []
 
         for user in users:
-            if user.notification == ANDROID:
+            if user.notification == MOBILE:
                 android_tokens.extend(get_user_device_tokens(user.id, ANDROID))
-            elif user.notification == IOS:
                 ios_tokens.extend(get_user_device_tokens(user.id, IOS))
             elif user.notification == EMAIL:
                 emails.append(user.email)
