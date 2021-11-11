@@ -357,6 +357,14 @@ If we have access to the device's unique `device_token`, we can identify which d
 }
 ```
 
+**Body:**
+
+```json
+{
+  "query": "cs 3110"
+}
+```
+
 **Example Response:**
 
 ```json
