@@ -343,6 +343,14 @@ If we have access to the device's unique `device_token`, we can identify which d
 
 **Headers:**
 * Auth header is NOT required - allows web users to search for courses even when they are not logged in
+* IMPORTANT
+  * If auth header is not present
+    * 'is_tracking' is always False
+    * no error thrown about authentication
+  * If auth header is present
+    * a verification process is triggered -> checks whether the given access_token is valid
+    * error could be thrown if access_token is invalid
+    * 'is_tracking' depends on user's data
 ```json
 {
   "Authorization": "Bearer <access_token>"
@@ -386,14 +394,6 @@ If we have access to the device's unique `device_token`, we can identify which d
 
 **Headers:**
 * Auth header is NOT required - allows web users to get course by id even when they are not logged in
-* IMPORTANT
-  * If auth header is not present
-    * 'is_tracking' is always False
-    * no error thrown about authentication
-  * If auth header is present
-    * a verification process is triggered -> checks whether the given access_token is valid
-    * error could be thrown if access_token is invalid
-    * 'is_tracking' depends on user's data
 ```json
 {
   "Authorization": "Bearer <access_token>"
