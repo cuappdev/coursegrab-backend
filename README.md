@@ -343,6 +343,49 @@ If we have access to the device's unique `device_token`, we can identify which d
 
 **Headers:**
 * Auth header is NOT required - allows web users to search for courses even when they are not logged in
+```json
+{
+  "Authorization": "Bearer <access_token>"
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "courses": [
+      {
+        "subject_code": "CS",
+        "course_num": 3110,
+        "id": 1298,
+        "title": "Object-Oriented Programming and Data Structures",
+        "sections": [
+          {
+            "catalog_num": 12401,
+            "course_num": 3110,
+            "instructors": ["Staff"],
+            "is_tracking": false,
+            "mode": "Online",
+            "num_tracking": 2,
+            "section": "DIS 212 / TR 12:20pm - 1:10pm",
+            "status": "OPEN",
+            "subject_code": "CS",
+            "title": "Data Structures and Functional Programming"
+          }
+        ]
+      }
+    ],
+    "query": "cs 3110"
+  },
+  "timestamp": 1581335566
+}
+```
+### /api/courses/<int:course_id>/ • GET
+
+**Headers:**
+* Auth header is NOT required - allows web users to get course by id even when they are not logged in
 * IMPORTANT
   * If auth header is not present
     * 'is_tracking' is always False
@@ -369,31 +412,31 @@ If we have access to the device's unique `device_token`, we can identify which d
 
 ```json
 {
-  "success": true,
-  "data": {
-    "courses": [
-      {
-        "subject_code": "CS",
+    "data": {
         "course_num": 3110,
-        "title": "Object-Oriented Programming and Data Structures",
+        "id": 1298,
         "sections": [
-          {
-            "catalog_num": 12401,
-            "course_num": 3110,
-            "instructors": ["Staff"],
-            "is_tracking": false,
-            "mode": "Online",
-            "num_tracking": 2,
-            "section": "DIS 212 / TR 12:20pm - 1:10pm",
-            "status": "OPEN",
-            "subject_code": "CS",
-            "title": "Data Structures and Functional Programming"
-          }
-        ]
-      }
-    ],
-    "query": "cs 3110"
-  },
-  "timestamp": 1581335566
+            {
+                "catalog_num": 10027,
+                "course_num": 3110,
+                "instructors": [
+                    "Nate Foster (jnf27)",
+                    "Justin Hsu (jah659)"
+                ],
+                "is_tracking": false,
+                "mode": "In Person",
+                "num_tracking": 2,
+                "section": "LEC 001 / MWF 11:20am",
+                "status": "OPEN",
+                "subject_code": "CS",
+                "title": "Data Structures and Functional Programming"
+            }
+        ],
+        "subject_code": "CS",
+        "title": "Data Structures and Functional Programming"
+    },
+    "success": true,
+    "timestamp": 1636588184
 }
 ```
+
