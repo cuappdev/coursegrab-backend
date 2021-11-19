@@ -177,6 +177,7 @@ If we have access to the device's unique `device_token`, we can identify which d
     "sections": [
       {
         "catalog_num": 12401,
+        "course_id": 1298,
         "course_num": 3110,
         "instructors": ["Nate Foster (jnf27)"],
         "is_tracking": true,
@@ -189,6 +190,7 @@ If we have access to the device's unique `device_token`, we can identify which d
       },
       {
         "catalog_num": 12403,
+        "course_id": 1298,
         "course_num": 4090,
         "instructors": [],
         "is_tracking": true,
@@ -286,6 +288,7 @@ If we have access to the device's unique `device_token`, we can identify which d
   "success": true,
   "data": {
     "catalog_num": 12401,
+    "course_id": 1298,
     "course_num": 3110,
     "instructors": ["Staff"],
     "is_tracking": true,
@@ -325,6 +328,7 @@ If we have access to the device's unique `device_token`, we can identify which d
   "success": true,
   "data": {
     "catalog_num": 12401,
+    "course_id": 1298,
     "course_num": 3110,
     "instructors": ["Staff"],
     "is_tracking": false,
@@ -375,10 +379,12 @@ If we have access to the device's unique `device_token`, we can identify which d
       {
         "subject_code": "CS",
         "course_num": 3110,
+        "id": 1298,
         "title": "Object-Oriented Programming and Data Structures",
         "sections": [
           {
             "catalog_num": 12401,
+            "course_id": 1298,
             "course_num": 3110,
             "instructors": ["Staff"],
             "is_tracking": false,
@@ -397,3 +403,46 @@ If we have access to the device's unique `device_token`, we can identify which d
   "timestamp": 1581335566
 }
 ```
+### /api/courses/<int:course_id>/ • GET
+
+**Headers:**
+* Auth header is NOT required - allows web users to get course by id even when they are not logged in
+```json
+{
+  "Authorization": "Bearer <access_token>"
+}
+```
+
+**Example Response:**
+
+```json
+{
+    "data": {
+        "course_num": 3110,
+        "id": 1298,
+        "sections": [
+            {
+                "catalog_num": 10027,
+                "course_id": 1298,
+                "course_num": 3110,
+                "instructors": [
+                    "Nate Foster (jnf27)",
+                    "Justin Hsu (jah659)"
+                ],
+                "is_tracking": false,
+                "mode": "In Person",
+                "num_tracking": 2,
+                "section": "LEC 001 / MWF 11:20am",
+                "status": "OPEN",
+                "subject_code": "CS",
+                "title": "Data Structures and Functional Programming"
+            }
+        ],
+        "subject_code": "CS",
+        "title": "Data Structures and Functional Programming"
+    },
+    "success": true,
+    "timestamp": 1636588184
+}
+```
+
