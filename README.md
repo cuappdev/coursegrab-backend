@@ -177,6 +177,7 @@ If we have access to the device's unique `device_token`, we can identify which d
     "sections": [
       {
         "catalog_num": 12401,
+        "course_id": 1298,
         "course_num": 3110,
         "instructors": ["Nate Foster (jnf27)"],
         "is_tracking": true,
@@ -189,6 +190,7 @@ If we have access to the device's unique `device_token`, we can identify which d
       },
       {
         "catalog_num": 12403,
+        "course_id": 1298,
         "course_num": 4090,
         "instructors": [],
         "is_tracking": true,
@@ -286,6 +288,7 @@ If we have access to the device's unique `device_token`, we can identify which d
   "success": true,
   "data": {
     "catalog_num": 12401,
+    "course_id": 1298,
     "course_num": 3110,
     "instructors": ["Staff"],
     "is_tracking": true,
@@ -325,6 +328,7 @@ If we have access to the device's unique `device_token`, we can identify which d
   "success": true,
   "data": {
     "catalog_num": 12401,
+    "course_id": 1298,
     "course_num": 3110,
     "instructors": ["Staff"],
     "is_tracking": false,
@@ -380,6 +384,7 @@ If we have access to the device's unique `device_token`, we can identify which d
         "sections": [
           {
             "catalog_num": 12401,
+            "course_id": 1298,
             "course_num": 3110,
             "instructors": ["Staff"],
             "is_tracking": false,
@@ -418,6 +423,7 @@ If we have access to the device's unique `device_token`, we can identify which d
         "sections": [
             {
                 "catalog_num": 10027,
+                "course_id": 1298,
                 "course_num": 3110,
                 "instructors": [
                     "Nate Foster (jnf27)",
