@@ -26,6 +26,7 @@ class Section(db.Model):
         course = Course.query.filter_by(id=self.course_id).first()
         return {
             "catalog_num": self.catalog_num,
+            "course_id": course.id,
             "course_num": course.course_num,
             "instructors": self.instructors.split(",") if self.instructors else [],
             "mode": self.mode,
