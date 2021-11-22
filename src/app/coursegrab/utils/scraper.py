@@ -115,7 +115,7 @@ def scrape_classes():
                         instructors.append(name)
                 instructor_str = ",".join(instructors) if instructors else None
 
-                open_status = section_tag.find_all("li", class_="open-status")[0].contents[0].contents[0]["class"][-1]
+                open_status = section_tag.find_all("li", class_="open-status")[0].find_all("span")[0].contents[0]["class"][-1]
                 status = INVALID
                 if "open-status-open" in open_status:
                     status = OPEN
@@ -152,7 +152,7 @@ def update_all_statuses():
                 catalog_tag = section_tag.find_all("strong", class_="tooltip-iws")[0]
                 catalog_num = int(catalog_tag.getText().strip())
 
-                open_status = section_tag.find_all("li", class_="open-status")[0].contents[0].contents[0]["class"][-1]
+                open_status = section_tag.find_all("li", class_="open-status")[0].find_all("span")[0].contents[0]["class"][-1]
                 status = INVALID
                 if "open-status-open" in open_status:
                     status = OPEN
