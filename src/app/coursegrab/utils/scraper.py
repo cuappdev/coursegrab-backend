@@ -24,7 +24,10 @@ def start_update():
         except:
             pass
     finally:
-        threading.Timer(0, start_update).start()  # temporary fix
+        # Scrape every 20 minutes as requested by CIT
+        # TODO: Switch from webscraping to the API detailed below
+        # https://classes.cornell.edu/content/SP22/api-details
+        threading.Timer(60 * 20, start_update).start()
 
 
 def refresh_classes():
