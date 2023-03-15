@@ -27,7 +27,7 @@ class InitializeSessionController(AppDevController):
                 notification = ANDROID  # temporary fix
             else:  # device_type == WEB
                 client_id = None
-            id_info = id_token.verify_oauth2_token(token, requests.Request(), None)
+            id_info = id_token.verify_oauth2_token(token, requests.Request(), client_id)
 
             if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
                 raise ValueError("Wrong issuer.")
