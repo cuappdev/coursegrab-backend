@@ -25,15 +25,14 @@ class InitializeSessionController(AppDevController):
             elif device_type == ANDROID:
                 client_id = environ["ANDROID_CLIENT_ID"]
                 notification = ANDROID  # temporary fix
-            # else:  # device_type == WEB
-            #     client_id =
+            else:  # device_type == WEB
+                client_id = None
             id_info = id_token.verify_oauth2_token(token, requests.Request(), client_id)
 
             if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
                 raise ValueError("Wrong issuer.")
-
             # ID token is valid. Get the user's Google Account information.
-            email, first_name, last_name = id_info["email"], id_info["given_name"], id_info["family_name"]
+            email, first_name, last_name = id_info.get("email"), id_info.get("given_name",""), id_info.get("family_name","")
             if email != "coursegrabappstore@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
                 raise Exception("You must use a Cornell email")
 
