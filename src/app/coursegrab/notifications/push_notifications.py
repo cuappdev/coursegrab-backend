@@ -33,7 +33,7 @@ except:
 
 # Initialize email body
 try:
-    f = open("./src/app/coursegrab/notifications/message.html", "r")
+    f = open(environ["EMAIL_TEMPLATE_PATH"], "r")
     email_body = f.read()
     f.close()
 except:
@@ -55,8 +55,8 @@ def notify_users(section):
                 android_tokens.extend(get_user_device_tokens(user.id, ANDROID))
             elif user.notification == IOS:
                 ios_tokens.extend(get_user_device_tokens(user.id, IOS))
-            elif user.notification == EMAIL:
-                emails.append(user.email)
+            # always send email
+            emails.append(user.email)
         payload = create_payload(section)
         if android_tokens:
             send_android_notification(android_tokens, payload)
@@ -101,7 +101,7 @@ def send_ios_notification(device_tokens, payload_data):
         "apns-expiration": "0",
         "apns-priority": "10",
         "apns-topic": environ["APNS_BUNDLE_ID"],
-        "authorization": "bearer {0}".format(token.decode("ascii")),
+        "authorization": "bearer {0}".format(token),
     }
 
     payload_data = {"aps": {"alert": payload_data, "badge": 1}}
@@ -176,18 +176,22 @@ def send_emails(section, emails):
 
 def send_single_email (subject_code, course_num, trimmed_section_name, email_chunk):
     """Send email notification to single chunk of user emails (max 999 bcc emails)"""
+    course_name_full = f"{subject_code} {course_num} {trimmed_section_name}"
     message = Mail(
-        from_email=(COURSEGRAB_EMAIL, "CourseGrab"),
-        subject=f"{subject_code} {course_num} {trimmed_section_name} is Now Open",
-        html_content=email_body,
+        from_email=(COURSEGRAB_EMAIL, "CourseGrab by AppDev"),
+        to_emails=COURSEGRAB_EMAIL, # Send to ourselves
+        subject=f"{course_name_full} is Now Open",
+        html_content=email_body.replace("COURSE_NAME_NUM", course_name_full),
     )
 
     personalization = Personalization()
-    personalization.add_to(Email(COURSEGRAB_EMAIL))   # Send to ourselves
     for bcc_email in email_chunk:                     # Add users' emails to bcc
         personalization.add_bcc(Email(bcc_email))
 
     message.add_personalization(personalization)
 
-    sendgrid_client.send(message)
+    try:
+        sendgrid_client.send(message)
+    except Exception as e:
+        print(f"Error sending email: {e.message}")
     
