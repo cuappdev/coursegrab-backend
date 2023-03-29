@@ -2,11 +2,11 @@ import json
 import jwt
 import time
 import base64
+import os
 from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_EMAIL, MAX_BCC_SIZE
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
-from os import environ, path
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 
@@ -16,7 +16,7 @@ from app.coursegrab.dao.users_dao import get_user_device_tokens
 
 # Initialize APNS
 try:
-    f = open(environ["APNS_AUTH_KEY_PATH"])
+    f = open(os.environ["APNS_AUTH_KEY_PATH"])
     auth_key = f.read()
     f.close()
 except:
@@ -27,13 +27,13 @@ firebase_app = initialize_app()
 
 # Initialize SendGrid client
 try:
-    sendgrid_client = SendGridAPIClient(environ.get("SENDGRID_API_KEY"))
+    sendgrid_client = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
 except:
     print("Error initializing SendGrid")
 
 # Initialize email body
 try:
-    f = open(environ["EMAIL_TEMPLATE_PATH"], "r")
+    f = open(os.path.join(os.path.dirname(__file__), 'message.html'), "r")
     email_body = f.read()
     f.close()
 except:
@@ -91,23 +91,23 @@ def send_ios_notification(device_tokens, payload_data):
     print(f"NOTIFICATIONS : Sending notifications to IOS users")
 
     token = jwt.encode(
-        {"iss": environ["APNS_TEAM_ID"], "iat": time.time()},
+        {"iss": os.environ["APNS_TEAM_ID"], "iat": time.time()},
         auth_key,
         algorithm=ALGORITHM,
-        headers={"alg": ALGORITHM, "kid": environ["APNS_KEY_ID"]},
+        headers={"alg": ALGORITHM, "kid": os.environ["APNS_KEY_ID"]},
     )
 
     request_headers = {
         "apns-expiration": "0",
         "apns-priority": "10",
-        "apns-topic": environ["APNS_BUNDLE_ID"],
+        "apns-topic": os.environ["APNS_BUNDLE_ID"],
         "authorization": "bearer {0}".format(token),
     }
 
     payload_data = {"aps": {"alert": payload_data, "badge": 1}}
     payload = json.dumps(payload_data).encode("utf-8")
 
-    apn_url = "api.sandbox.push.apple.com:443" if environ["FLASK_ENV"] == "development" else "api.push.apple.com:443"
+    apn_url = "api.sandbox.push.apple.com:443" if os.environ["FLASK_ENV"] == "development" else "api.push.apple.com:443"
     conn = HTTP20Connection(apn_url, force_proto="h2")
 
     successful_tokens = []
