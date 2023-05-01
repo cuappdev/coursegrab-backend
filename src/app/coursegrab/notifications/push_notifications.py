@@ -27,13 +27,13 @@ firebase_app = initialize_app()
 
 # Initialize SendGrid client
 try:
-    sendgrid_client = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+    sendgrid_client = SendGridAPIClient(os.environ["SENDGRID_API_KEY"])
 except:
     print("Error initializing SendGrid")
 
 # Initialize email body
 try:
-    f = open(os.path.join(os.path.dirname(__file__), 'message.html'), "r")
+    f = open(os.path.join(os.path.dirname(__file__), "message.html"), "r")
     email_body = f.read()
     f.close()
 except:
