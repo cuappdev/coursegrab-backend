@@ -23,7 +23,8 @@ ALGORITHM = "ES256"
 NUM_SEARCH_RESULT = 50
 
 # Coursegrab notifier email
-COURSEGRAB_EMAIL = "coursegrab-noreply@cornellappdev.com"
+COURSEGRAB_FROM_EMAIL = "coursegrab-noreply@cornellappdev.com"
+COURSEGRAB_TO_EMAIL = "coursegrabcornell@gmail.com"
 
 # Max number of bcc emails for SendGrid email notification
 MAX_BCC_SIZE = 999

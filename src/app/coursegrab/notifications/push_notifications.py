@@ -3,7 +3,7 @@ import jwt
 import time
 import base64
 import os
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_EMAIL, MAX_BCC_SIZE
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_FROM_EMAIL, COURSEGRAB_TO_EMAIL, MAX_BCC_SIZE
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
@@ -178,13 +178,13 @@ def send_single_email (subject_code, course_num, trimmed_section_name, email_chu
     """Send email notification to single chunk of user emails (max 999 bcc emails)"""
     course_name_full = f"{subject_code} {course_num} {trimmed_section_name}"
     message = Mail(
-        from_email=Email(COURSEGRAB_EMAIL, "CourseGrab by AppDev"),
+        from_email=Email(COURSEGRAB_FROM_EMAIL, "CourseGrab by AppDev"),
         subject=f"{course_name_full} is Now Open",
         html_content=email_body.replace("COURSE_NAME_NUM", course_name_full),
     )
 
     personalization = Personalization()
-    personalization.add_to(To(COURSEGRAB_EMAIL))
+    personalization.add_to(To(COURSEGRAB_TO_EMAIL))
     for bcc_email in email_chunk:                     # Add users' emails to bcc
         personalization.add_bcc(Email(bcc_email))
 
