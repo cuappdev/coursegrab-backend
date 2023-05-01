@@ -178,13 +178,13 @@ def send_single_email (subject_code, course_num, trimmed_section_name, email_chu
     """Send email notification to single chunk of user emails (max 999 bcc emails)"""
     course_name_full = f"{subject_code} {course_num} {trimmed_section_name}"
     message = Mail(
-        from_email=(COURSEGRAB_EMAIL, "CourseGrab by AppDev"),
-        to_emails=COURSEGRAB_EMAIL, # Send to ourselves
+        from_email=Email(COURSEGRAB_EMAIL, "CourseGrab by AppDev"),
         subject=f"{course_name_full} is Now Open",
         html_content=email_body.replace("COURSE_NAME_NUM", course_name_full),
     )
 
     personalization = Personalization()
+    personalization.add_to(To(COURSEGRAB_EMAIL))
     for bcc_email in email_chunk:                     # Add users' emails to bcc
         personalization.add_bcc(Email(bcc_email))
 
@@ -193,5 +193,5 @@ def send_single_email (subject_code, course_num, trimmed_section_name, email_chu
     try:
         sendgrid_client.send(message)
     except Exception as e:
-        print(f"Error sending email: {e.message}")
+        print(f"Error sending email: {e.reason}")
     
