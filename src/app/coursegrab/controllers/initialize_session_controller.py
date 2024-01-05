@@ -33,7 +33,7 @@ class InitializeSessionController(AppDevController):
                 raise ValueError("Wrong issuer.")
             # ID token is valid. Get the user's Google Account information.
             email, first_name, last_name = id_info.get("email"), id_info.get("given_name",""), id_info.get("family_name","")
-            if email != "coursegrabappstore@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
+            if email != "appstoreappdev@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
                 raise Exception("You must use a Cornell email")
 
             user = users_dao.create_user(email, first_name, last_name)
