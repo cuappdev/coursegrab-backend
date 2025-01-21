@@ -1,8 +1,10 @@
 from os import environ
+
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from . import *
+
 from ..utils.constants import ANDROID, IOS
+from . import *
 
 
 class InitializeSessionController(AppDevController):
@@ -32,8 +34,9 @@ class InitializeSessionController(AppDevController):
             if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
                 raise ValueError("Wrong issuer.")
             # ID token is valid. Get the user's Google Account information.
-            email, first_name, last_name = id_info.get("email"), id_info.get("given_name",""), id_info.get("family_name","")
-            if email != "appstoreappdev@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
+            email, first_name, last_name = id_info.get("email"), id_info.get(
+                "given_name", ""), id_info.get("family_name", "")
+            if email != "coursegrab.droid@gmail.com" and email != "appstoreappdev@gmail.com" and email[email.find("@") + 1 :] != "cornell.edu":
                 raise Exception("You must use a Cornell email")
 
             user = users_dao.create_user(email, first_name, last_name)
