@@ -7,8 +7,7 @@ from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURS
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import *
+import boto3
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
 from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
@@ -25,11 +24,16 @@ except:
 # Initialize FCM
 firebase_app = initialize_app()
 
-# Initialize SendGrid client
+# Initialize Amazon SES client
 try:
-    sendgrid_client = SendGridAPIClient(os.environ["SENDGRID_API_KEY"])
+    ses_client = boto3.client(
+        "ses",
+        region_name=os.environ["AWS_REGION"],
+        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    )
 except:
-    print("Error initializing SendGrid")
+    print("Error initializing SES")
 
 # Initialize email body
 try:
@@ -161,9 +165,9 @@ def send_emails(section, emails):
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
 
-    # SendGrid has a limit of 1000 total recipients (to + cc + bcc) per request. 
-    # We have to use up 1 out of 1000 to send the email to ourselves. Thus we have 999 emails left to fill up with user's emails
-    # in the bcc section. So we partition the emails into chunks of size 999 max. (e.g. email_chunks = [ [999 emails], [21 emails] ])
+    # SES has a limit of 50 total recipients (to + cc + bcc) per request.
+    # We use up 1 out of 50 to send the email to ourselves. Thus we have 49 emails left to fill up with user's emails
+    # in the bcc section. So we partition the emails into chunks of size 49 max. (e.g. email_chunks = [ [49 emails], [21 emails] ])
     email_chunks = [emails[ind:ind + MAX_BCC_SIZE] for ind in range(0, len(emails), MAX_BCC_SIZE)]
 
     try:
@@ -175,23 +179,21 @@ def send_emails(section, emails):
 
 
 def send_single_email (subject_code, course_num, trimmed_section_name, email_chunk):
-    """Send email notification to single chunk of user emails (max 999 bcc emails)"""
+    """Send email notification to single chunk of user emails (max 49 bcc emails)"""
     course_name_full = f"{subject_code} {course_num} {trimmed_section_name}"
-    message = Mail(
-        from_email=Email(COURSEGRAB_FROM_EMAIL, "CourseGrab by AppDev"),
-        subject=f"{course_name_full} is Now Open",
-        html_content=email_body.replace("COURSE_NAME_NUM", course_name_full),
-    )
-
-    personalization = Personalization()
-    personalization.add_to(To(COURSEGRAB_TO_EMAIL))
-    for bcc_email in email_chunk:                     # Add users' emails to bcc
-        personalization.add_bcc(Email(bcc_email))
-
-    message.add_personalization(personalization)
 
     try:
-        sendgrid_client.send(message)
+        ses_client.send_email(
+            Source=f"CourseGrab by AppDev <{COURSEGRAB_FROM_EMAIL}>",
+            Destination={
+                "ToAddresses": [COURSEGRAB_TO_EMAIL],
+                "BccAddresses": list(email_chunk),    # Add users' emails to bcc
+            },
+            Message={
+                "Subject": {"Data": f"{course_name_full} is Now Open"},
+                "Body": {"Html": {"Data": email_body.replace("COURSE_NAME_NUM", course_name_full)}},
+            },
+        )
     except Exception as e:
-        print(f"Error sending email: {e.reason}")
+        print(f"Error sending email: {e}")
     
