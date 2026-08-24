@@ -24,7 +24,7 @@ NUM_SEARCH_RESULT = 50
 
 # Coursegrab notifier email
 COURSEGRAB_FROM_EMAIL = "noreply@coursegrab.me"
-COURSEGRAB_TO_EMAIL = "coursegrabcornell@gmail.com"
+COURSEGRAB_TO_EMAIL = "coursegrabappstore@gmail.com"
 
 # Max number of bcc emails per SES email notification.
 # SES caps a single send at 50 total recipients (to + cc + bcc). One slot is
