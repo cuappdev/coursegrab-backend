@@ -8,6 +8,8 @@ from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
 import boto3
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Email, To, Personalization
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
 from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
@@ -24,16 +26,26 @@ except:
 # Initialize FCM
 firebase_app = initialize_app()
 
-# Initialize Amazon SES client
+# Email provider is selectable via env var so we can switch between SendGrid and
+# Amazon SES without a code change ("sendgrid" while SES production access is pending,
+# "ses" once approved). Defaults to sendgrid.
+EMAIL_PROVIDER = os.environ.get("EMAIL_PROVIDER", "sendgrid").lower()
+
+# Initialize the selected email client
+ses_client = None
+sendgrid_client = None
 try:
-    ses_client = boto3.client(
-        "ses",
-        region_name=os.environ["AWS_REGION"],
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-    )
+    if EMAIL_PROVIDER == "ses":
+        ses_client = boto3.client(
+            "ses",
+            region_name=os.environ["AWS_REGION"],
+            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+        )
+    else:
+        sendgrid_client = SendGridAPIClient(os.environ["SENDGRID_API_KEY"])
 except:
-    print("Error initializing SES")
+    print(f"Error initializing email client for provider: {EMAIL_PROVIDER}")
 
 # Initialize email body
 try:
@@ -181,19 +193,37 @@ def send_emails(section, emails):
 def send_single_email (subject_code, course_num, trimmed_section_name, email_chunk):
     """Send email notification to single chunk of user emails (max 49 bcc emails)"""
     course_name_full = f"{subject_code} {course_num} {trimmed_section_name}"
+    subject = f"{course_name_full} is Now Open"
+    html_content = email_body.replace("COURSE_NAME_NUM", course_name_full)
 
-    try:
-        ses_client.send_email(
-            Source=f"CourseGrab by AppDev <{COURSEGRAB_FROM_EMAIL}>",
-            Destination={
-                "ToAddresses": [COURSEGRAB_TO_EMAIL],
-                "BccAddresses": list(email_chunk),    # Add users' emails to bcc
-            },
-            Message={
-                "Subject": {"Data": f"{course_name_full} is Now Open"},
-                "Body": {"Html": {"Data": email_body.replace("COURSE_NAME_NUM", course_name_full)}},
-            },
+    if EMAIL_PROVIDER == "ses":
+        try:
+            ses_client.send_email(
+                Source=f"CourseGrab by AppDev <{COURSEGRAB_FROM_EMAIL}>",
+                Destination={
+                    "ToAddresses": [COURSEGRAB_TO_EMAIL],
+                    "BccAddresses": list(email_chunk),    # Add users' emails to bcc
+                },
+                Message={
+                    "Subject": {"Data": subject},
+                    "Body": {"Html": {"Data": html_content}},
+                },
+            )
+        except Exception as e:
+            print(f"Error sending email: {e}")
+    else:  # sendgrid
+        message = Mail(
+            from_email=Email(COURSEGRAB_FROM_EMAIL, "CourseGrab by AppDev"),
+            subject=subject,
+            html_content=html_content,
         )
-    except Exception as e:
-        print(f"Error sending email: {e}")
+        personalization = Personalization()
+        personalization.add_to(To(COURSEGRAB_TO_EMAIL))
+        for bcc_email in email_chunk:                 # Add users' emails to bcc
+            personalization.add_bcc(Email(bcc_email))
+        message.add_personalization(personalization)
+        try:
+            sendgrid_client.send(message)
+        except Exception as e:
+            print(f"Error sending email: {e}")
     
