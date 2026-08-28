@@ -26,7 +26,9 @@ NUM_SEARCH_RESULT = 50
 COURSEGRAB_FROM_EMAIL = "noreply@coursegrab.me"
 COURSEGRAB_TO_EMAIL = "coursegrabappstore@gmail.com"
 
-# Max number of bcc emails per SES email notification.
-# SES caps a single send at 50 total recipients (to + cc + bcc). One slot is
-# used by COURSEGRAB_TO_EMAIL, leaving 49 for bcc.
-MAX_BCC_SIZE = 49
+# Max recipients addressed per email send. Each recipient receives an individual
+# email (their own To:), not a shared BCC — a transactional pattern that scores far
+# better with strict inbox providers (e.g. Microsoft/Outlook). For SendGrid this is
+# the number of personalizations batched into one API request (provider limit 1000);
+# for SES we loop one send per recipient, so it just bounds the batch we iterate.
+MAX_RECIPIENTS_PER_SEND = 1000

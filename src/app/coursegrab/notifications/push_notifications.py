@@ -3,7 +3,7 @@ import jwt
 import time
 import base64
 import os
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_FROM_EMAIL, COURSEGRAB_TO_EMAIL, MAX_BCC_SIZE
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_FROM_EMAIL, COURSEGRAB_TO_EMAIL, MAX_RECIPIENTS_PER_SEND
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
@@ -177,53 +177,61 @@ def send_emails(section, emails):
     end_section_index = serialized_section["section"].find("/")
     trimmed_section_name = serialized_section["section"][:end_section_index].strip()
 
-    # SES has a limit of 50 total recipients (to + cc + bcc) per request.
-    # We use up 1 out of 50 to send the email to ourselves. Thus we have 49 emails left to fill up with user's emails
-    # in the bcc section. So we partition the emails into chunks of size 49 max. (e.g. email_chunks = [ [49 emails], [21 emails] ])
-    email_chunks = [emails[ind:ind + MAX_BCC_SIZE] for ind in range(0, len(emails), MAX_BCC_SIZE)]
+    # Each recipient gets their own individual email (see send_single_email). We
+    # partition into batches of MAX_RECIPIENTS_PER_SEND so SendGrid can deliver a
+    # batch in a single API request (via one personalization per recipient).
+    email_chunks = [emails[ind:ind + MAX_RECIPIENTS_PER_SEND] for ind in range(0, len(emails), MAX_RECIPIENTS_PER_SEND)]
 
     try:
         # Send separate email for each chunk
         for chunk in email_chunks:
             send_single_email(subject_code, course_num, trimmed_section_name, chunk)
+        # Send one monitoring copy of this notification to our own inbox so we keep
+        # a running record of every notification that goes out.
+        send_single_email(subject_code, course_num, trimmed_section_name, [COURSEGRAB_TO_EMAIL])
     except Exception as e:
         print("Error while sending email notifications:", e)
 
 
-def send_single_email (subject_code, course_num, trimmed_section_name, email_chunk):
-    """Send email notification to single chunk of user emails (max 49 bcc emails)"""
+def send_single_email(subject_code, course_num, trimmed_section_name, email_chunk):
+    """Send an individual notification email to each recipient in the chunk.
+
+    Each recipient is the sole To: address (a transactional 1:1 pattern) instead of
+    being BCC'd on one shared bulk message. This scores far better with strict inbox
+    providers (e.g. Microsoft/Outlook) and keeps recipients' addresses private from
+    one another.
+    """
     course_name_full = f"{subject_code} {course_num} {trimmed_section_name}"
     subject = f"{course_name_full} is Now Open"
     html_content = email_body.replace("COURSE_NAME_NUM", course_name_full)
 
     if EMAIL_PROVIDER == "ses":
-        try:
-            ses_client.send_email(
-                Source=f"CourseGrab by AppDev <{COURSEGRAB_FROM_EMAIL}>",
-                Destination={
-                    "ToAddresses": [COURSEGRAB_TO_EMAIL],
-                    "BccAddresses": list(email_chunk),    # Add users' emails to bcc
-                },
-                Message={
-                    "Subject": {"Data": subject},
-                    "Body": {"Html": {"Data": html_content}},
-                },
-            )
-        except Exception as e:
-            print(f"Error sending email: {e}")
+        # SES has no multi-recipient personalization; send one email per recipient.
+        for recipient in email_chunk:
+            try:
+                ses_client.send_email(
+                    Source=f"CourseGrab by AppDev <{COURSEGRAB_FROM_EMAIL}>",
+                    Destination={"ToAddresses": [recipient]},
+                    Message={
+                        "Subject": {"Data": subject},
+                        "Body": {"Html": {"Data": html_content}},
+                    },
+                )
+            except Exception as e:
+                print(f"Error sending email to {recipient}: {e}")
     else:  # sendgrid
+        # One request with a separate personalization per recipient: SendGrid
+        # delivers an individual email to each, and recipients never see each other.
         message = Mail(
             from_email=Email(COURSEGRAB_FROM_EMAIL, "CourseGrab by AppDev"),
             subject=subject,
             html_content=html_content,
         )
-        personalization = Personalization()
-        personalization.add_to(To(COURSEGRAB_TO_EMAIL))
-        for bcc_email in email_chunk:                 # Add users' emails to bcc
-            personalization.add_bcc(Email(bcc_email))
-        message.add_personalization(personalization)
+        for recipient in email_chunk:                 # one To: per recipient
+            personalization = Personalization()
+            personalization.add_to(To(recipient))
+            message.add_personalization(personalization)
         try:
             sendgrid_client.send(message)
         except Exception as e:
             print(f"Error sending email: {e}")
-    
