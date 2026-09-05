@@ -11,7 +11,7 @@ cffi==1.14.0
 cfgv==2.0.1
 chardet==3.0.4
 Click==7.1.2
-cryptography==2.9
+cryptography==39.0.1
 entrypoints==0.3
 firebase-admin==4.0.1
 flake8==3.7.9
