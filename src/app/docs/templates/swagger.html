@@ -9,11 +9,17 @@
 <body>
   <div id="swagger-ui"></div>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.35.0/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.35.0/swagger-ui-standalone-preset.js"></script>
   <script>
     window.onload = function () {
       SwaggerUIBundle({
-        url: {{ url_for('docs.openapi_spec', v=spec_version) | tojson }},
+        urls: [
+          { name: 'V1', url: {{ url_for('docs.version_spec', version='v1', v=spec_version) | tojson }} },
+          { name: 'V2', url: {{ url_for('docs.version_spec', version='v2', v=spec_version) | tojson }} }
+        ],
         dom_id: '#swagger-ui',
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        layout: 'StandaloneLayout',
         deepLinking: true,
         docExpansion: 'none',
         persistAuthorization: false,

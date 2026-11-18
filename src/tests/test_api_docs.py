@@ -9,7 +9,8 @@ def test_docs_are_public_and_use_local_spec():
         assert response.status_code == 200
         assert response.mimetype == "text/html"
         html = response.get_data(as_text=True)
-        assert '"/docs/openapi.json?v=' in html
+        assert '"/docs/openapi/v1.json?v=' in html
+        assert '"/docs/openapi/v2.json?v=' in html
         assert "persistAuthorization: false" in html
         assert "validatorUrl: null" in html
         assert client.get("/docs").status_code in (301, 308)
@@ -64,3 +65,16 @@ def test_openapi_auth_contracts_and_references():
                 check_references(child)
 
     check_references(spec)
+
+
+def test_version_specs_partition_routes_and_credentials():
+    with app.test_client() as client:
+        full = client.get("/docs/openapi.json").get_json()
+        v1 = client.get("/docs/openapi/v1.json").get_json()
+        v2 = client.get("/docs/openapi/v2.json").get_json()
+        assert client.get("/docs/openapi/v3.json").status_code == 404
+    assert set(v1["paths"]) | set(v2["paths"]) == set(full["paths"])
+    assert not set(v1["paths"]) & set(v2["paths"])
+    assert all(route.startswith("/api/v2/") for route in v2["paths"])
+    assert set(v1["components"]["securitySchemes"]) == {"LegacySession", "LegacyRefresh"}
+    assert set(v2["components"]["securitySchemes"]) == {"FirebaseAuth"}

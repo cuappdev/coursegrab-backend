@@ -76,30 +76,6 @@ python src/manage.py db migrate -m "Message describing migration"
 python src/manage.py db upgrade
 ```
 
-## Interactive API documentation
-
-With the backend running, open `/docs/` (for example,
-`http://127.0.0.1:5001/docs/`). Swagger UI groups all original `/api` and Firebase
-`/api/v2` endpoints under one collapsible group per version. The OpenAPI 3.0 specification is available
-at `/docs/openapi.json` and can also be imported into API clients.
-
-Use **Authorize** and paste a token without the `Bearer` prefix:
-
-- **LegacySession**: `session_token` from `/api/session/initialize/`.
-- **LegacyRefresh**: `update_token`, only for `/api/session/update/`.
-- **FirebaseAuth**: Firebase ID token obtained through a client Firebase Auth SDK.
-
-**Try it out** sends requests to the server hosting the docs, including writes to its
-configured database. The legacy notification debug GET endpoints send real push
-notifications. Authorization is kept in memory rather than persisted across reloads.
-The UI loads pinned Swagger UI 5.35.0 assets from jsDelivr and needs internet access;
-the JSON spec is served locally and external spec validation is disabled.
-
-Maintain `src/app/docs/openapi.json` alongside controller changes. Tests compare the
-spec's paths/methods with Flask's registered API routes and check authentication
-schemes and references. Documented legacy error responses reflect current behavior,
-including HTTP 200 with `success: false`; this docs change does not alter endpoints.
-
 ## Firebase Authentication
 
 The `/api/v2` endpoints use Firebase Authentication. Existing clients can continue using `/api` with CourseGrab session tokens.
