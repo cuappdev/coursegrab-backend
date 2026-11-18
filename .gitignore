@@ -9,3 +9,4 @@ venv/
 *.p8
 gmail_credentials.json
 gmail_token.json
+*-firebase-adminsdk-*.json
