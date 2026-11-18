@@ -6,7 +6,8 @@ import os
 from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_FROM_EMAIL, COURSEGRAB_TO_EMAIL, MAX_RECIPIENTS_PER_SEND, CORNELL_EMAIL_DOMAIN, CORNELL_GMAIL_DOMAIN
 from datetime import datetime
 from hyper import HTTP20Connection
-from firebase_admin import initialize_app, messaging
+from firebase_admin import messaging
+from app.coursegrab.utils.firebase import get_firebase_app
 import boto3
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Personalization
@@ -24,7 +25,7 @@ except:
     print("Error initializing APNS")
 
 # Initialize FCM
-firebase_app = initialize_app()
+# Initialization is lazy so imports and migrations do not need credentials.
 
 # Email provider is selectable via env var so we can switch between SendGrid and
 # Amazon SES without a code change ("sendgrid" while SES production access is pending,
@@ -159,7 +160,7 @@ def send_android_notification(device_tokens, payload):
     for token in device_tokens:
         try:
             message = messaging.Message(data={"message": json.dumps(payload)}, token=token)
-            response = messaging.send(message)
+            response = messaging.send(message, app=get_firebase_app())
             if response:
                 successful_tokens.append(token)
         except messaging.UnregisteredError:  # FCM Exception for invalid registration token (i.e. device token)
