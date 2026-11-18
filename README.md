@@ -80,7 +80,7 @@ python src/manage.py db upgrade
 
 With the backend running, open `/docs/` (for example,
 `http://127.0.0.1:5001/docs/`). Swagger UI groups all original `/api` and Firebase
-`/api/v2` endpoints by version and feature. The OpenAPI 3.0 specification is available
+`/api/v2` endpoints under one collapsible group per version. The OpenAPI 3.0 specification is available
 at `/docs/openapi.json` and can also be imported into API clients.
 
 Use **Authorize** and paste a token without the `Bearer` prefix:
