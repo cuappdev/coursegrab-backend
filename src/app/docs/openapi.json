@@ -13,19 +13,29 @@
   ],
   "tags": [
     {
-      "name": "V1",
-      "description": "Original API using CourseGrab session tokens."
+      "name": "Sessions"
     },
     {
-      "name": "V2",
-      "description": "Firebase-authenticated API."
+      "name": "Account"
+    },
+    {
+      "name": "Courses"
+    },
+    {
+      "name": "Tracking"
+    },
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "Devices"
     }
   ],
   "paths": {
     "/api/hello/": {
       "get": {
         "tags": [
-          "V1"
+          "Sessions"
         ],
         "summary": "Check authenticated access",
         "operationId": "v1_get_hello",
@@ -47,7 +57,7 @@
     "/api/courses/{id}/": {
       "get": {
         "tags": [
-          "V1"
+          "Courses"
         ],
         "summary": "Get a course and its sections",
         "operationId": "v1_get_courses_id",
@@ -81,7 +91,7 @@
     "/api/courses/search/": {
       "post": {
         "tags": [
-          "V1"
+          "Courses"
         ],
         "summary": "Search courses",
         "operationId": "v1_post_courses_search",
@@ -115,7 +125,7 @@
     "/api/sections/{catalog_num}/": {
       "get": {
         "tags": [
-          "V1"
+          "Courses"
         ],
         "summary": "Get a section",
         "operationId": "v1_get_sections_catalog_num",
@@ -147,7 +157,7 @@
     "/api/users/tracking/": {
       "get": {
         "tags": [
-          "V1"
+          "Tracking"
         ],
         "summary": "List tracked sections",
         "operationId": "v1_get_users_tracking",
@@ -169,7 +179,7 @@
     "/api/sections/track/": {
       "post": {
         "tags": [
-          "V1"
+          "Tracking"
         ],
         "summary": "Track a section",
         "operationId": "v1_post_sections_track",
@@ -201,7 +211,7 @@
     "/api/sections/untrack/": {
       "post": {
         "tags": [
-          "V1"
+          "Tracking"
         ],
         "summary": "Untrack a section",
         "operationId": "v1_post_sections_untrack",
@@ -233,7 +243,7 @@
     "/api/users/notification/": {
       "post": {
         "tags": [
-          "V1"
+          "Notifications"
         ],
         "summary": "Set account push preference",
         "operationId": "v1_post_users_notification",
@@ -266,7 +276,7 @@
     "/api/v2/hello/": {
       "get": {
         "tags": [
-          "V2"
+          "Account"
         ],
         "summary": "Check authenticated access",
         "operationId": "v2_get_hello",
@@ -300,7 +310,7 @@
     "/api/v2/courses/{id}/": {
       "get": {
         "tags": [
-          "V2"
+          "Courses"
         ],
         "summary": "Get a course and its sections",
         "operationId": "v2_get_courses_id",
@@ -346,7 +356,7 @@
     "/api/v2/courses/search/": {
       "post": {
         "tags": [
-          "V2"
+          "Courses"
         ],
         "summary": "Search courses",
         "operationId": "v2_post_courses_search",
@@ -392,7 +402,7 @@
     "/api/v2/sections/{catalog_num}/": {
       "get": {
         "tags": [
-          "V2"
+          "Courses"
         ],
         "summary": "Get a section",
         "operationId": "v2_get_sections_catalog_num",
@@ -436,7 +446,7 @@
     "/api/v2/users/tracking/": {
       "get": {
         "tags": [
-          "V2"
+          "Tracking"
         ],
         "summary": "List tracked sections",
         "operationId": "v2_get_users_tracking",
@@ -470,7 +480,7 @@
     "/api/v2/sections/track/": {
       "post": {
         "tags": [
-          "V2"
+          "Tracking"
         ],
         "summary": "Track a section",
         "operationId": "v2_post_sections_track",
@@ -514,7 +524,7 @@
     "/api/v2/sections/untrack/": {
       "post": {
         "tags": [
-          "V2"
+          "Tracking"
         ],
         "summary": "Untrack a section",
         "operationId": "v2_post_sections_untrack",
@@ -558,7 +568,7 @@
     "/api/v2/users/notification/": {
       "post": {
         "tags": [
-          "V2"
+          "Notifications"
         ],
         "summary": "Set account push preference",
         "operationId": "v2_post_users_notification",
@@ -603,7 +613,7 @@
     "/api/session/initialize/": {
       "post": {
         "tags": [
-          "V1"
+          "Sessions"
         ],
         "summary": "Exchange Google token for a legacy session",
         "operationId": "v1_post_session_initialize",
@@ -629,7 +639,7 @@
     "/api/session/update/": {
       "post": {
         "tags": [
-          "V1"
+          "Sessions"
         ],
         "summary": "Refresh a legacy session",
         "operationId": "v1_post_session_update",
@@ -652,7 +662,7 @@
     "/api/users/device-token/": {
       "post": {
         "tags": [
-          "V1"
+          "Notifications"
         ],
         "summary": "Update this legacy session\u2019s push token",
         "operationId": "v1_post_users_device-token",
@@ -694,7 +704,7 @@
     "/api/notification/ios/{device_token}/": {
       "get": {
         "tags": [
-          "V1"
+          "Notifications"
         ],
         "summary": "Send a debug ios push notification",
         "operationId": "v1_get_notification_ios_device_token",
@@ -720,7 +730,7 @@
     "/api/notification/android/{device_token}/": {
       "get": {
         "tags": [
-          "V1"
+          "Notifications"
         ],
         "summary": "Send a debug android push notification",
         "operationId": "v1_get_notification_android_device_token",
@@ -746,7 +756,7 @@
     "/api/v2/users/me/": {
       "get": {
         "tags": [
-          "V2"
+          "Account"
         ],
         "summary": "Get or initialize the current local user",
         "operationId": "v2_get_users_me",
@@ -781,7 +791,7 @@
     "/api/v2/users/devices/": {
       "post": {
         "tags": [
-          "V2"
+          "Devices"
         ],
         "summary": "Register a push device",
         "operationId": "v2_post_users_devices",
@@ -829,7 +839,7 @@
     "/api/v2/users/devices/{registration_id}/": {
       "put": {
         "tags": [
-          "V2"
+          "Devices"
         ],
         "summary": "Update an owned push registration",
         "operationId": "v2_put_users_devices_registration_id",
@@ -888,7 +898,7 @@
       },
       "delete": {
         "tags": [
-          "V2"
+          "Devices"
         ],
         "summary": "Unregister a push device",
         "operationId": "v2_delete_users_devices_registration_id",
