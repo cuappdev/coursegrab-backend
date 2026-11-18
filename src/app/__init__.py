@@ -13,6 +13,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 db = SQLAlchemy(app)
 
 from app.coursegrab import coursegrab, coursegrab_v2  # noqa: E402
+from app.docs import docs  # noqa: E402
 
+app.register_blueprint(docs)
 app.register_blueprint(coursegrab)
 app.register_blueprint(coursegrab_v2)
