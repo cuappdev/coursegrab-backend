@@ -88,6 +88,20 @@ Sign in with Google through the Firebase SDK and send the Firebase ID token in t
 
 Course, tracking, and notification-preference endpoints are also available under `/api/v2`. Session and device-token endpoints remain under `/api`.
 
+### Device registration
+
+Use Firebase authentication for these endpoints:
+
+| Endpoint | Behavior |
+| --- | --- |
+| `POST /api/v2/users/devices/` | Register with `{"device_type": "IOS", "device_token": "..."}` (or `ANDROID`). Returns `data: {"id": 123, "device_type": "IOS"}`. |
+| `PUT /api/v2/users/devices/123/` | Same body; rotate the token of an owned registration. |
+| `DELETE /api/v2/users/devices/123/` | Unregister an owned device before signing out; returns `data: null`. |
+
+Repeated registration of the same user/platform/token returns the same ID. Keep this ID for rotation and logout. Another user's registration ID returns 404; a token registered to another account returns 409. Unregister before switching accounts or obtain a new push token.
+
+Notifications combine legacy session tokens and v2 registrations, deduplicated per platform. V2 registrations take precedence over legacy copies of the same token. Rotation and logout clear corresponding old legacy token copies.
+
 ## User Sessions
 
 The following describes sessions for `/api`.
