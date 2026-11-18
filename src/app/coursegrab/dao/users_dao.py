@@ -60,11 +60,24 @@ def untrack_section(user_id, catalog_num):
 # Get all device_tokens for a specific device_type
 def get_user_device_tokens(user_id, device_type):
     user = get_user_by_id(user_id)
-    tokens = []
-    for session in user.sessions:
-        if session.device_type == device_type and session.device_token:
-            tokens.append(session.device_token)
-    return tokens
+    tokens = {device.device_token for device in user.devices if device.device_type == device_type}
+    legacy_tokens = {
+        session.device_token
+        for session in user.sessions
+        if session.device_type == device_type and session.device_token
+    }
+    if legacy_tokens:
+        # Check only this user's legacy tokens, not every registered device.
+        # A v2 registration takes precedence even when it belongs to another user.
+        registered = {
+            token
+            for (token,) in db.session.query(DeviceRegistration.device_token).filter(
+                DeviceRegistration.device_type == device_type,
+                DeviceRegistration.device_token.in_(legacy_tokens),
+            )
+        }
+        tokens.update(legacy_tokens - registered)
+    return sorted(tokens)
 
 
 def update_notification(user_id, notification):

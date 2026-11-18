@@ -17,7 +17,7 @@ def get_user_from_session(session):
 # refresh that session since we can identify the device. Otherwise, create a new user session.
 def create_session(user_id, device_type, device_token=None):
     if device_token:
-        session = Session.query.filter(Session.device_token == device_token).first()
+        session = Session.query.filter_by(user_id=user_id, device_type=device_type, device_token=device_token).first()
         if session:
             session.refresh_session()
             db.session.commit()
