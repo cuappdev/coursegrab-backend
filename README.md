@@ -117,8 +117,16 @@ The SDK manages authentication persistence and token refresh.
 | `GET /api/v2/courses/<int:course_id>/` | Same course contract; anonymous access remains available. |
 | `GET /api/v2/sections/<catalog_num>/` | Same section contract as v1. |
 | `POST /api/v2/users/notification/` | Updates the shared account's notification preference. |
+| `POST /api/v2/users/devices/` | Register a device with `{"device_type": "IOS", "device_token": "..."}` (or `ANDROID`). Returns `data: {"id": 123, "device_type": "IOS"}`. |
+| `PUT /api/v2/users/devices/123/` | Same body; rotate the token of an owned registration. |
+| `DELETE /api/v2/users/devices/123/` | Unregister an owned device before signing out; returns `data: null`. |
 
 Other authenticated v2 endpoints also resolve/create the local user on demand.
+Repeated registration of the same user/platform/token returns the same registration ID.
+A different user's registration ID returns 404, and a token registered in v2 to
+another account returns 409. Unregister while signed into the old account before
+switching accounts, or obtain a new push token. Clients should retain their registration
+ID for rotation and logout; it is not an authentication credential.
 
 V2 has no `/session/initialize/`, `/session/update/`, or `/users/device-token/` routes.
 The original `/api` versions remain available and continue returning legacy responses.
@@ -126,7 +134,8 @@ Notification debug endpoints are not duplicated into v2.
 
 A supplied invalid token is rejected even on anonymous-capable routes. Errors retain
 `{"success": false, "data": {"errors": ["..."]}, "timestamp": ...}` for registered
-controllers, with 401 for authentication, 403 for eligibility, 409 for identity conflicts, and 503 for
+controllers, with 401 for authentication, 403 for eligibility, 404 for device ownership
+lookups, 409 for identity/device conflicts, 400 for invalid device input, and 503 for
 Firebase service failures. Unexpected v2 controller failures return a generic 500.
 Unregistered routes use Flask's normal 404 response.
 
@@ -143,11 +152,15 @@ case-insensitive email matches are rejected. Local IDs, names, tracked sections,
 preferences remain intact. Verified email changes for the same UID update the local
 email unless it conflicts with an existing account.
 
-Device-registration endpoints and notification integration follow in the next PR.
+Notifications read legacy session tokens and v2 registrations together, deduplicated
+per platform. Explicit v2 registrations take precedence over legacy copies of the
+same token. Rotation/logout clears corresponding old legacy token copies. Existing
+registrations remain in the sessions table instead of being copied at migration time,
+so legacy clients can continue registering and rotating devices during rollout.
 
 Deploy the backend first, then migrate each supported client independently. Existing
 clients keep using `/api`; migrated clients use `/api/v2`, Firebase ID tokens, and the
-device contract once available. Monitor authentication failures and linking conflicts. Retire v1
+new device contract. Monitor authentication failures and linking conflicts. Retire v1
 and legacy session storage only after supported clients no longer depend on them.
 Do not drop the new schema as a routine rollback after v2 activity: that discards
 identity mappings and new device registrations. Disable v2 client rollout instead.

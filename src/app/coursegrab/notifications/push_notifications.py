@@ -13,7 +13,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Personalization
 
 from app.coursegrab.dao.sections_dao import get_users_tracking_section
-from app.coursegrab.dao.sessions_dao import delete_session_expired_device_tokens
+from app.coursegrab.dao.devices_dao import delete_expired_device_tokens
 from app.coursegrab.dao.users_dao import get_user_device_tokens
 
 # Initialize APNS
@@ -146,7 +146,7 @@ def send_ios_notification(device_tokens, payload_data):
         except:
             pass
     if expired_tokens:
-        delete_session_expired_device_tokens(expired_tokens)
+        delete_expired_device_tokens(expired_tokens, IOS)
 
     print(f"iOS : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
 
@@ -169,7 +169,7 @@ def send_android_notification(device_tokens, payload):
             continue
 
     if expired_tokens:
-        delete_session_expired_device_tokens(expired_tokens)
+        delete_expired_device_tokens(expired_tokens, ANDROID)
 
     print(f"Android : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
 
