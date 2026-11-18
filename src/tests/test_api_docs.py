@@ -9,7 +9,7 @@ def test_docs_are_public_and_use_local_spec():
         assert response.status_code == 200
         assert response.mimetype == "text/html"
         html = response.get_data(as_text=True)
-        assert '"/docs/openapi.json"' in html
+        assert '"/docs/openapi.json?v=' in html
         assert "persistAuthorization: false" in html
         assert "validatorUrl: null" in html
         assert client.get("/docs").status_code in (301, 308)
