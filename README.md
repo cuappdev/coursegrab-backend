@@ -76,6 +76,13 @@ python src/manage.py db migrate -m "Message describing migration"
 python src/manage.py db upgrade
 ```
 
+## Firebase schema foundations
+
+Run `python src/manage.py db upgrade` to add the nullable, unique `users.firebase_uid`
+and the independent `device_registrations` table. Existing users, sessions, and tracked
+sections are preserved. This schema change does not enable Firebase authentication
+or add endpoints; those changes follow separately.
+
 ## User Sessions
 
 All user sessions are managed with `Session` model. This allows multiple sessions to be associated with one user, allowing users to maintain sessions on multiple devices.
