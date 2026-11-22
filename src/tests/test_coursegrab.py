@@ -9,16 +9,15 @@ from .helpers import client_get, client_post
 
 
 @pytest.fixture
-def client():
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
-    app.config["TESTING"] = True
+def client(monkeypatch):
+    monkeypatch.setitem(app.config, "SQLALCHEMY_DATABASE_URI", "sqlite://")
+    monkeypatch.setitem(app.config, "TESTING", True)
 
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-        yield client
-
-    db.drop_all()
+    with app.app_context():
+        db.create_all()
+        yield app.test_client()
+        db.session.remove()
+        db.drop_all()
 
 
 @pytest.fixture
