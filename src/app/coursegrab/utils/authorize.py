@@ -30,9 +30,12 @@ def extract_bearer(f):
 def legacy_bearer_token():
     # Existing SwiftUI releases send raw tokens instead of the Bearer scheme.
     header = request.headers.get("Authorization")
-    if not header or not header.strip():
-        raise APIError("Missing authorization header.", 401)
-    return header[7:].strip() if header.startswith("Bearer ") else header.strip()
+    if header is None:
+        raise Exception("Missing authorization header.")
+    token = header.replace("Bearer ", "").strip()
+    if not token:
+        raise Exception("Invalid authorization header.")
+    return token
 
 
 def authenticate():
@@ -40,11 +43,8 @@ def authenticate():
         claims = verify_firebase_token(bearer_token())
         return {"user": get_or_create_firebase_user(claims)}
     token = legacy_bearer_token()
-    try:
-        user, session = verify_session(token)
-    except Exception:
-        raise APIError("Invalid or expired session token.", 401)
-    return {"user": user, "session": session}
+    user, session = verify_session(token)
+    return {"user": user, "session": session, "bearer_token": token}
 
 
 def authorize_user(f):
@@ -59,9 +59,15 @@ def authorize_user(f):
 def authorize_user_selective(f):
     @wraps(f)
     def inner(*args, **kwargs):
-        if request.headers.get("Authorization") is None:
+        header = request.headers.get("Authorization")
+        if header is None:
             return f(*args, **kwargs)
-        kwargs.update(authenticate())
+        if request.blueprint == "coursegrab_v2":
+            kwargs.update(authenticate())
+        else:
+            token = header.replace("Bearer ", "").strip()
+            user, session = verify_session(token)
+            kwargs.update(user=user, session=session)
         return f(*args, **kwargs)
 
     return inner

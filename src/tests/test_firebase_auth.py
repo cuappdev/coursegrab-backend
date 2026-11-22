@@ -70,6 +70,8 @@ def test_new_user_and_tracking(client, verifier):
 def test_malformed_header(client, verifier, header):
     response = client.get("/api/v2/hello/", headers={} if header is None else {"Authorization": header})
     assert response.status_code == 401
+    assert response.json["success"] is False
+    assert response.json["data"]["errors"]
     assert response.headers["WWW-Authenticate"] == "Bearer"
     verifier.assert_not_called()
 
@@ -225,11 +227,45 @@ def test_v1_and_v2_work_together_with_same_local_user(client, verifier, monkeypa
 
 
 def test_firebase_token_not_accepted_on_v1(client, verifier):
-    assert client.get("/api/hello/", headers=headers()).status_code == 401
+    response = client.get("/api/hello/", headers=headers())
+    assert response.status_code == 200
+    assert response.json["success"] is False
     verifier.assert_not_called()
 
 
 @pytest.mark.parametrize("path", ["session/initialize/", "session/update/", "users/device-token/"])
 def test_v2_has_no_legacy_session_routes(client, verifier, path):
     assert client.post("/api/v2/" + path, headers=headers()).status_code == 404
+    verifier.assert_not_called()
+
+
+@pytest.mark.parametrize("header, message", [
+    (None, "Missing authorization header."),
+    ("", "Invalid authorization header."),
+    ("Bearer ", "Invalid authorization header."),
+    ("Bearer invalid", "Invalid session token."),
+])
+def test_v1_auth_errors_keep_legacy_response(client, verifier, header, message):
+    response = client.get("/api/hello/", headers={} if header is None else {"Authorization": header})
+    assert response.status_code == 200
+    assert response.json["success"] is False
+    assert response.json["data"]["errors"] == [message]
+    assert "WWW-Authenticate" not in response.headers
+    verifier.assert_not_called()
+
+
+def test_v1_optional_auth_empty_token_keeps_legacy_response(client, verifier):
+    response = client.post("/api/courses/search/", json={"query": "CS"},
+                           headers={"Authorization": ""})
+    assert response.status_code == 200
+    assert response.json["data"]["errors"] == ["Invalid session token."]
+    assert response.json["success"] is False
+    verifier.assert_not_called()
+
+
+def test_v1_refresh_missing_header_keeps_legacy_response(client, verifier):
+    response = client.post("/api/session/update/")
+    assert response.status_code == 200
+    assert response.json["success"] is False
+    assert response.json["data"]["errors"] == ["Missing authorization header."]
     verifier.assert_not_called()
