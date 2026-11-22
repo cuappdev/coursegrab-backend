@@ -12,15 +12,18 @@ class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String, nullable=False, unique=True)
+    firebase_uid = db.Column(db.String(128), nullable=True, unique=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.Integer, nullable=False)
     notification = db.Column(db.String, nullable=True)
 
     sections = db.relationship("Section", secondary=users_to_sections, backref="users")
     sessions = db.relationship("Session", back_populates="user", cascade="all, delete")
+    devices = db.relationship("DeviceRegistration", back_populates="user", cascade="all, delete-orphan")
 
     def __init__(self, **kwargs):
         self.email = kwargs.get("email")
+        self.firebase_uid = kwargs.get("firebase_uid")
         self.first_name = kwargs.get("first_name")
         self.last_name = kwargs.get("last_name")
         self.notification = None  # Default notifications set to None

@@ -25,6 +25,9 @@ To use `direnv` with this repository, run the following and set the variables ap
 cp envrc.template .envrc
 ```
 
+## Ingesting Data
+Once you have set up the Virtual Environment and Environment variables (see above), running the app for the first time (see [Running the App](#running-the-app) below) will automatically ingest all classes, and should continually check to see if a new roster has been released daily. If you ever need to manually ingest a new roster (without having to wait for the cronjob to execute), you can simply restart the containers or processes running this backend.
+
 ## Style
 
 **Flake 8**: Install [flake8](http://flake8.pycqa.org/en/latest/)
@@ -72,6 +75,13 @@ python src/manage.py db migrate -m "Message describing migration"
 ```
 python src/manage.py db upgrade
 ```
+
+## Firebase schema foundations
+
+Run `python src/manage.py db upgrade` to add the nullable, unique `users.firebase_uid`
+and the independent `device_registrations` table. Existing users, sessions, and tracked
+sections are preserved. This schema change does not enable Firebase authentication
+or add endpoints; those changes follow separately.
 
 ## User Sessions
 

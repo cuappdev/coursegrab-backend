@@ -32,3 +32,8 @@ COURSEGRAB_TO_EMAIL = "coursegrabappstore@gmail.com"
 # the number of personalizations batched into one API request (provider limit 1000);
 # for SES we loop one send per recipient, so it just bounds the batch we iterate.
 MAX_RECIPIENTS_PER_SEND = 1000
+
+# Cornell routes @cornell.edu mail through Microsoft 365 (Outlook) before forwarding to Google Workspace.
+# Sending to @g.cornell.edu delivers straight to Cornell Gmail.
+CORNELL_EMAIL_DOMAIN = "cornell.edu"
+CORNELL_GMAIL_DOMAIN = "g.cornell.edu"

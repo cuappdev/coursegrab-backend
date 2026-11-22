@@ -3,7 +3,7 @@ import jwt
 import time
 import base64
 import os
-from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_FROM_EMAIL, COURSEGRAB_TO_EMAIL, MAX_RECIPIENTS_PER_SEND
+from app.coursegrab.utils.constants import ALGORITHM, ANDROID, EMAIL, IOS, COURSEGRAB_FROM_EMAIL, COURSEGRAB_TO_EMAIL, MAX_RECIPIENTS_PER_SEND, CORNELL_EMAIL_DOMAIN, CORNELL_GMAIL_DOMAIN
 from datetime import datetime
 from hyper import HTTP20Connection
 from firebase_admin import initialize_app, messaging
@@ -30,6 +30,11 @@ firebase_app = initialize_app()
 # Amazon SES without a code change ("sendgrid" while SES production access is pending,
 # "ses" once approved). Defaults to sendgrid.
 EMAIL_PROVIDER = os.environ.get("EMAIL_PROVIDER", "sendgrid").lower()
+
+
+# When on (default), @cornell.edu recipients are rewritten to @g.cornell.edu.
+# Set SEND_TO_CORNELL_GMAIL=false to turn this off without a code change.
+SEND_TO_CORNELL_GMAIL = os.environ.get("SEND_TO_CORNELL_GMAIL", "true").lower() != "false"
 
 # Initialize the selected email client
 ses_client = None
@@ -168,8 +173,20 @@ def send_android_notification(device_tokens, payload):
     print(f"Android : {len(successful_tokens)} messages sent successfully out of {len(device_tokens)}")
 
 
+def to_cornell_gmail(email):
+    """ Rewrite name@cornell.edu to name@g.cornell.edu. Any other address is unchanged. """
+    local, sep, domain = email.strip().rpartition("@")
+    if sep and domain.lower() == CORNELL_EMAIL_DOMAIN:
+        return f"{local}@{CORNELL_GMAIL_DOMAIN}"
+    return email
+
+
 def send_emails(section, emails):
     print(f"NOTIFICATIONS : Sending notifications to EMAIL users")
+
+    if SEND_TO_CORNELL_GMAIL:
+        # dict.fromkeys removes duplicates while keeping order
+        emails = list(dict.fromkeys(to_cornell_gmail(e) for e in emails))
 
     serialized_section = {**section.serialize(), "is_tracking": True}
     subject_code = serialized_section['subject_code']
