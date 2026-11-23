@@ -13,3 +13,5 @@ export AWS_SECRET_ACCESS_KEY=FILL_IN
 export AWS_REGION=us-east-2
 export SENDGRID_API_KEY=FILL_IN
 export EMAIL_PROVIDER=sendgrid
+export FIREBASE_PROJECT_ID=FILL_IN
+export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
