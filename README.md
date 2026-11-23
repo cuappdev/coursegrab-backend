@@ -76,86 +76,21 @@ python src/manage.py db migrate -m "Message describing migration"
 python src/manage.py db upgrade
 ```
 
-## Firebase Auth API v2
+## Firebase Authentication
 
-Both API versions run together:
+The `/api/v2` endpoints use Firebase Authentication. Existing clients can continue using `/api` with CourseGrab session tokens.
 
-- `/api/` keeps the existing Google-token exchange, CourseGrab session tokens,
-  refresh endpoint, and device-token endpoint for existing clients.
-- `/api/v2/` accepts only `Authorization: Bearer <firebase_id_token>`. It verifies
-  Firebase ID tokens, revocation, and disabled-account status, and never falls back
-  to legacy credentials. Google provider tokens are not Firebase ID tokens.
+Set `FIREBASE_PROJECT_ID` and `GOOGLE_APPLICATION_CREDENTIALS` in your environment. The credentials should point to a Firebase service-account JSON file.
 
-Both versions use the same local users, tracked sections, and notification preferences.
-Course and tracking controllers are shared; authentication is selected by the matched
-Flask blueprint, not by guessing the token type.
+Sign in with Google through the Firebase SDK and send the Firebase ID token in the `Authorization: Bearer <token>` header. Firebase handles token refresh.
 
-### Configuration
+`GET /api/v2/users/me/` returns the current user. Existing accounts are linked by verified email, preserving tracked classes and notification preferences. New accounts are created if needed.
 
-Set `FIREBASE_PROJECT_ID` and Application Default Credentials (for example,
-`GOOGLE_APPLICATION_CREDENTIALS` pointing to a service-account JSON file outside the
-repository). Credentials must support Firebase Auth user lookup. Authentication and
-FCM share the default Admin app. Do not configure an auth emulator in production.
+Course, tracking, and notification-preference endpoints are also available under `/api/v2`. Session and device-token endpoints remain under `/api`.
 
-Only Google sign-in identities with verified Cornell emails or the existing
-`appstoreappdev@gmail.com` / `coursegrab.droid@gmail.com` exceptions can access v2.
-The pinned `firebase-admin==4.0.1` supports revocation checking but requires a separate
-user lookup to reject disabled accounts. This incurs an additional lookup per request.
-No broad Python/dependency upgrade is included.
+## User Sessions
 
-### Client contract
-
-Clients obtain Firebase ID tokens through their SDK and use `/api/v2` as the base URL.
-The SDK manages authentication persistence and token refresh.
-
-| Endpoint | Behavior |
-| --- | --- |
-| `GET /api/v2/users/me/` | Link/create the local user and return `data: {"user": {...}}`; no custom tokens are issued. |
-| `GET /api/v2/users/tracking/` | Same tracking response as v1. |
-| `POST /api/v2/sections/track/` and `/untrack/` | Same request bodies and response shapes as v1. |
-| `POST /api/v2/courses/search/` | Same search contract; anonymous access remains available. |
-| `GET /api/v2/courses/<int:course_id>/` | Same course contract; anonymous access remains available. |
-| `GET /api/v2/sections/<catalog_num>/` | Same section contract as v1. |
-| `POST /api/v2/users/notification/` | Updates the shared account's notification preference. |
-
-Other authenticated v2 endpoints also resolve/create the local user on demand.
-
-V2 has no `/session/initialize/`, `/session/update/`, or `/users/device-token/` routes.
-The original `/api` versions remain available and continue returning legacy responses.
-Notification debug endpoints are not duplicated into v2.
-
-A supplied invalid token is rejected even on anonymous-capable routes. Errors retain
-`{"success": false, "data": {"errors": ["..."]}, "timestamp": ...}` for registered
-controllers, with 401 for authentication, 403 for eligibility, 409 for identity conflicts, and 503 for
-Firebase service failures. Unexpected v2 controller failures return a generic 500.
-Unregistered routes use Flask's normal 404 response.
-
-### Identity, devices, and gradual rollout
-
-Back up the database and apply `python src/manage.py db upgrade` before running this
-code. The additive migration introduces unique nullable `users.firebase_uid` and
-`device_registrations`, preserving existing users, sessions, and tracked courses.
-No Firebase project or production data is modified by the code changes themselves.
-
-First Firebase sign-in links a verified email to an unlinked local user with a
-conditional database update. Later requests resolve by UID. Conflicts and ambiguous
-case-insensitive email matches are rejected. Local IDs, names, tracked sections, and
-preferences remain intact. Verified email changes for the same UID update the local
-email unless it conflicts with an existing account.
-
-Device-registration endpoints and notification integration follow in the next PR.
-
-Deploy the backend first, then migrate each supported client independently. Existing
-clients keep using `/api`; migrated clients use `/api/v2`, Firebase ID tokens, and the
-device contract once available. Monitor authentication failures and linking conflicts. Retire v1
-and legacy session storage only after supported clients no longer depend on them.
-Do not drop the new schema as a routine rollback after v2 activity: that discards
-identity mappings and new device registrations. Disable v2 client rollout instead.
-
-Tests mock Firebase calls; real-project credentials, revoked/disabled accounts, client
-sign-in, and push delivery still require a staging smoke test.
-
-## Legacy User Sessions
+The following describes sessions for `/api`.
 
 All user sessions are managed with `Session` model. This allows multiple sessions to be associated with one user, allowing users to maintain sessions on multiple devices.
 
@@ -188,9 +123,9 @@ If we have access to the device's unique `device_token`, we can identify which d
 
 2. [WIP] Script to periodically clean up outdated sessions
 
-## Original API endpoints (`/api`)
+## Endpoints
 
-The examples below describe `/api`. See the v2 contract above for migrated clients.
+The examples below describe `/api`.
 
 ### /api/session/initialize/• POST
 
