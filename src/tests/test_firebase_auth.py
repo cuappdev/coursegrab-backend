@@ -4,7 +4,8 @@ import pytest
 from firebase_admin import auth, exceptions
 
 from app import app, db
-from app.coursegrab.dao import sections_dao, sessions_dao, users_dao
+from app.coursegrab.dao import devices_dao, sections_dao, sessions_dao, users_dao
+from app.coursegrab.models.device_registration import DeviceRegistration
 from app.coursegrab.models.user import User
 from app.coursegrab.utils import firebase
 
@@ -150,6 +151,47 @@ def test_legacy_tokens_rejected_on_v2(client, verifier):
     assert client.post("/api/v2/session/update/", headers=headers(session.update_token)).status_code == 404
 
 
+def test_devices_rotation_logout_and_ownership(client, verifier, claims):
+    body = {"device_type": "IOS", "device_token": "push-token"}
+    response = client.post("/api/v2/users/devices/", json=body, headers=headers())
+    assert response.status_code == 200
+    device_id = response.json["data"]["id"]
+    assert client.post("/api/v2/users/devices/", json=body, headers=headers()).json["data"]["id"] == device_id
+    assert DeviceRegistration.query.count() == 1
+    user = User.query.one()
+    old_session = sessions_dao.create_session(user.id, "IOS", "push-token")
+    body["device_token"] = "rotated-token"
+    path = "/api/v2/users/devices/{}/".format(device_id)
+    assert client.put(path, json=body, headers=headers()).status_code == 200
+    assert old_session.device_token is None
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == ["rotated-token"]
+    claims.update(uid="other", email="other@cornell.edu")
+    assert client.put(path, json=body, headers=headers()).status_code == 404
+    assert client.delete(path, headers=headers()).status_code == 404
+    assert client.post("/api/v2/users/devices/", json=body, headers=headers()).status_code == 409
+    claims.update(uid="firebase-user", email="student@cornell.edu")
+    assert client.delete(path, headers=headers()).status_code == 200
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == []
+    claims.update(uid="other", email="other@cornell.edu")
+    assert client.post("/api/v2/users/devices/", json=body, headers=headers()).status_code == 200
+
+
+@pytest.mark.parametrize("body", [None, [], {}, {"device_type": "WEB", "device_token": "a"},
+                                  {"device_type": "IOS", "device_token": ""}])
+def test_invalid_device_registration(client, verifier, body):
+    assert client.post("/api/v2/users/devices/", json=body, headers=headers()).status_code == 400
+
+
+def test_expired_token_cleanup_is_platform_scoped(client, verifier):
+    client.get("/api/v2/hello/", headers=headers())
+    user = User.query.one()
+    for platform in ("IOS", "ANDROID"):
+        devices_dao.register_new_device(user.id, {"device_type": platform, "device_token": "same-token"})
+    devices_dao.delete_expired_device_tokens(["same-token"], "IOS")
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == []
+    assert users_dao.get_user_device_tokens(user.id, "ANDROID") == ["same-token"]
+
+
 @pytest.mark.parametrize("same_uid", [True, False])
 def test_concurrent_account_linking(client, claims, monkeypatch, same_uid):
     from concurrent.futures import ThreadPoolExecutor
@@ -269,3 +311,85 @@ def test_v1_refresh_missing_header_keeps_legacy_response(client, verifier):
     assert response.json["success"] is False
     assert response.json["data"]["errors"] == ["Missing authorization header."]
     verifier.assert_not_called()
+
+
+def test_notifications_include_both_versions_without_duplicates(client, verifier):
+    client.get("/api/v2/users/me/", headers=headers())
+    user = User.query.one()
+    legacy = sessions_dao.create_session(user.id, "IOS", "legacy-token")
+    devices_dao.register_new_device(user.id, {"device_type": "IOS", "device_token": "v2-token"})
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == ["legacy-token", "v2-token"]
+    sessions_dao.update_device_token(legacy.id, "rotated-legacy-token")
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == ["rotated-legacy-token", "v2-token"]
+    device = devices_dao.register_new_device(user.id, {"device_type": "IOS", "device_token": "rotated-legacy-token"})
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == ["rotated-legacy-token", "v2-token"]
+    devices_dao.unregister_device(user.id, device.id)
+    assert users_dao.get_user_device_tokens(user.id, "IOS") == ["v2-token"]
+
+
+def test_v2_registration_takes_precedence_over_another_users_legacy_token(client):
+    legacy_user = users_dao.create_user("legacy@cornell.edu", "Legacy", "User")
+    current_user = users_dao.create_user("current@cornell.edu", "Current", "User")
+    sessions_dao.create_session(legacy_user.id, "IOS", "shared-token")
+    devices_dao.register_new_device(current_user.id, {"device_type": "IOS", "device_token": "shared-token"})
+
+    assert users_dao.get_user_device_tokens(legacy_user.id, "IOS") == []
+    assert users_dao.get_user_device_tokens(current_user.id, "IOS") == ["shared-token"]
+
+
+@pytest.mark.parametrize("platform", ["IOS", "ANDROID"])
+def test_notifications_route_v2_devices_to_the_platform_sender(client, verifier, monkeypatch, platform):
+    from app.coursegrab.notifications import push_notifications
+
+    ios_sender = Mock()
+    android_sender = Mock()
+    email_sender = Mock()
+    monkeypatch.setattr(push_notifications, "send_ios_notification", ios_sender)
+    monkeypatch.setattr(push_notifications, "send_android_notification", android_sender)
+    monkeypatch.setattr(push_notifications, "send_emails", email_sender)
+
+    response = client.post(
+        "/api/v2/users/devices/",
+        json={"device_type": platform, "device_token": "v2-token"},
+        headers=headers(),
+    )
+    assert response.status_code == 200
+    assert client.post(
+        "/api/v2/users/notification/", json={"notification": platform}, headers=headers()
+    ).json["success"]
+    section = sections_dao.create_sections(
+        ("CS", 3110, "Programming"), [(123, "001 / LEC", "OPEN", "Staff", "Online")]
+    )[0]
+    assert client.post(
+        "/api/v2/sections/track/", json={"course_id": section.catalog_num}, headers=headers()
+    ).json["success"]
+
+    push_notifications.notify_users(section)
+
+    sender, other_sender = (ios_sender, android_sender) if platform == "IOS" else (android_sender, ios_sender)
+    sender.assert_called_once()
+    tokens, payload = sender.call_args[0]
+    assert tokens == ["v2-token"]
+    assert payload["section"]["catalog_num"] == section.catalog_num
+    assert payload["section"]["is_tracking"] is True
+    other_sender.assert_not_called()
+    email_sender.assert_called_once_with(section, ["student@cornell.edu"])
+
+
+@pytest.mark.parametrize("other_user", [False, True])
+def test_device_update_rejects_token_owned_by_another_registration(client, verifier, other_user):
+    client.get("/api/v2/users/me/", headers=headers())
+    user = User.query.one()
+    registration = devices_dao.register_new_device(user.id, {"device_type": "IOS", "device_token": "original"})
+    owner = users_dao.create_user("other@cornell.edu", "Other", "User") if other_user else user
+    devices_dao.register_new_device(owner.id, {"device_type": "IOS", "device_token": "taken"})
+    legacy_session = sessions_dao.create_session(user.id, "IOS", "original")
+
+    response = client.put("/api/v2/users/devices/{}/".format(registration.id),
+                          json={"device_type": "IOS", "device_token": "taken"}, headers=headers())
+
+    assert response.status_code == 409
+    db.session.expire_all()
+    assert registration.device_token == "original"
+    assert legacy_session.device_token == "original"
+    assert DeviceRegistration.query.count() == 2

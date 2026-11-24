@@ -17,7 +17,7 @@ def get_user_from_session(session):
 # refresh that session since we can identify the device. Otherwise, create a new user session.
 def create_session(user_id, device_type, device_token=None):
     if device_token:
-        session = Session.query.filter(Session.device_token == device_token).first()
+        session = Session.query.filter_by(user_id=user_id, device_type=device_type, device_token=device_token).first()
         if session:
             session.refresh_session()
             db.session.commit()
@@ -53,6 +53,7 @@ def update_device_token(session_id, device_token):
     return session
 
 
+# Deprecated: use devices_dao.delete_expired_device_tokens(tokens, device_type) instead.
 # If there is an expired device_token, it is no longer in use (probably because the user
 # deleted the app). Therefore, we no longer need a session associated with this device_token.
 def delete_session_expired_device_tokens(tokens):

@@ -1,5 +1,6 @@
 from flask import Blueprint
 from app.coursegrab.controllers.current_user_controller import *
+from app.coursegrab.controllers.devices_controller import *
 from app.coursegrab.controllers.get_course_by_id_controller import *
 from app.coursegrab.controllers.get_section_controller import *
 from app.coursegrab.controllers.hello_world_controller import *
@@ -46,6 +47,8 @@ coursegrab_v2 = Blueprint("coursegrab_v2", __name__, url_prefix="/api/v2")
 
 v2_controllers = [
     CurrentUserController(),
+    RegisterDeviceController(),
+    ManageDeviceController(),
 ]
 
 for controller in shared_controllers + v2_controllers:
