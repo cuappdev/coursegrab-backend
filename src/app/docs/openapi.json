@@ -1,0 +1,1788 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "coursegrab-backend",
+    "version": "1.0.0",
+    "description": "API documentation for CourseGrab. Expand V1 or V2 to browse endpoints and try requests against this server."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Server hosting these docs"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Sessions"
+    },
+    {
+      "name": "Account"
+    },
+    {
+      "name": "Courses"
+    },
+    {
+      "name": "Tracking"
+    },
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "Devices"
+    }
+  ],
+  "paths": {
+    "/api/hello/": {
+      "get": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Check authenticated access",
+        "operationId": "v1_get_hello",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyMessageResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        }
+      }
+    },
+    "/api/courses/{id}/": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Get a course and its sections",
+        "operationId": "v1_get_courses_id",
+        "security": [
+          {},
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyCourseResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "description": " Anonymous requests are allowed. If Authorization is supplied, it must be valid.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/courses/search/": {
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Search courses",
+        "operationId": "v1_post_courses_search",
+        "security": [
+          {},
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacySearchResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "description": " Anonymous requests are allowed. If Authorization is supplied, it must be valid.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sections/{catalog_num}/": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Get a section",
+        "operationId": "v1_get_sections_catalog_num",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacySectionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "parameters": [
+          {
+            "name": "catalog_num",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/users/tracking/": {
+      "get": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "List tracked sections",
+        "operationId": "v1_get_users_tracking",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyTrackingResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        }
+      }
+    },
+    "/api/sections/track/": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "Track a section",
+        "operationId": "v1_post_sections_track",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacySectionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sections/untrack/": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "Untrack a section",
+        "operationId": "v1_post_sections_untrack",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacySectionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/notification/": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Set account push preference",
+        "operationId": "v1_post_users_notification",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyEmptyResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "description": "Applies to the shared user across devices and both API versions. The notification flow continues sending email regardless of this preference. Returns data:null.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/hello/": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Check authenticated access",
+        "operationId": "v2_get_hello",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MessageResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/v2/courses/{id}/": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Get a course and its sections",
+        "operationId": "v2_get_courses_id",
+        "security": [
+          {},
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/CourseResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": " Anonymous requests are allowed. If Authorization is supplied, it must be valid.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v2/courses/search/": {
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Search courses",
+        "operationId": "v2_post_courses_search",
+        "security": [
+          {},
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SearchResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": " Anonymous requests are allowed. If Authorization is supplied, it must be valid.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/sections/{catalog_num}/": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Get a section",
+        "operationId": "v2_get_sections_catalog_num",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SectionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "catalog_num",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v2/users/tracking/": {
+      "get": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "List tracked sections",
+        "operationId": "v2_get_users_tracking",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TrackingResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/v2/sections/track/": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "Track a section",
+        "operationId": "v2_post_sections_track",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SectionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/sections/untrack/": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "Untrack a section",
+        "operationId": "v2_post_sections_untrack",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SectionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/users/notification/": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Set account push preference",
+        "operationId": "v2_post_users_notification",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/EmptyResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Applies to the shared user across devices and both API versions. The notification flow continues sending email regardless of this preference. Returns data:null.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/session/initialize/": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Exchange Google token for a legacy session",
+        "operationId": "v1_post_session_initialize",
+        "security": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacySessionResponse"
+          }
+        },
+        "description": "Creates or reuses the local user/session. Also sets the user push preference to IOS or ANDROID; web initialization clears it.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitializeInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/session/update/": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Refresh a legacy session",
+        "operationId": "v1_post_session_update",
+        "security": [
+          {
+            "LegacyRefresh": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacySessionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "description": "Send the update_token, not session_token. Returns new session and update tokens. Invalid refresh tokens can return HTTP 200 with success:false."
+      }
+    },
+    "/api/users/device-token/": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Update this legacy session\u2019s push token",
+        "operationId": "v1_post_users_device-token",
+        "security": [
+          {
+            "LegacySession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyEmptyResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          }
+        },
+        "description": "Stores the push token in the authenticated legacy session. Returns data:null.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "device_token": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "device_token"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/ios/{device_token}/": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Send a debug ios push notification",
+        "operationId": "v1_get_notification_ios_device_token",
+        "security": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyMessageResponse"
+          }
+        },
+        "description": "Legacy unauthenticated debug endpoint. Calling it sends a real notification using the first section in the database and requires configured push credentials. The returned message is not reliable delivery confirmation: the sender does not return the numeric value this controller checks. Not available in v2.",
+        "parameters": [
+          {
+            "name": "device_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/notification/android/{device_token}/": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Send a debug android push notification",
+        "operationId": "v1_get_notification_android_device_token",
+        "security": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LegacyMessageResponse"
+          }
+        },
+        "description": "Legacy unauthenticated debug endpoint. Calling it sends a real notification using the first section in the database and requires configured push credentials. The returned message is not reliable delivery confirmation: the sender does not return the numeric value this controller checks. Not available in v2.",
+        "parameters": [
+          {
+            "name": "device_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v2/users/me/": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Get or initialize the current local user",
+        "operationId": "v2_get_users_me",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Resolves Firebase UID to a local user, linking by verified email or creating the user on first use. Returns no custom session tokens. Other authenticated v2 routes perform the same user resolution."
+      }
+    },
+    "/api/v2/users/devices/": {
+      "post": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Register a push device",
+        "operationId": "v2_post_users_devices",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/DeviceResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Repeated registration of the same user/platform/token returns the existing ID. A token owned by another v2 account returns 409. Save the returned ID for rotation/logout. Registration alone does not set the user push preference or send a notification.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/users/devices/{registration_id}/": {
+      "put": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Update an owned push registration",
+        "operationId": "v2_put_users_devices_registration_id",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/DeviceResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Replaces the platform/token of an owned registration. Conflicts with another registration return 409. Clears matching old legacy token copies on rotation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "registration_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Unregister a push device",
+        "operationId": "v2_delete_users_devices_registration_id",
+        "security": [
+          {
+            "FirebaseAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/EmptyResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Call before Firebase sign-out, while you still have a valid ID token. Deletes the registration and clears matching legacy token copies. Returns data:null.",
+        "parameters": [
+          {
+            "name": "registration_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "LegacySession": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Paste the session_token from /api/session/initialize/ or /api/session/update/ without the Bearer prefix. Legacy raw-token headers remain accepted by the backend. Authorization is not saved across page reloads."
+      },
+      "LegacyRefresh": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Paste the update_token without the Bearer prefix. Used only for /api/session/update/, not ordinary authenticated requests."
+      },
+      "FirebaseAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Paste a Firebase ID token from the client SDK without the Bearer prefix. Requires Google sign-in, a verified Cornell email (or an approved review account), and an enabled, non-revoked account. Not a Google OAuth token, refresh token, or push token. Authorization is not saved across page reloads."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "errors"
+            ]
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "Section": {
+        "type": "object",
+        "properties": {
+          "catalog_num": {
+            "type": "integer",
+            "example": 12345
+          },
+          "course_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "course_num": {
+            "type": "integer",
+            "example": 3110
+          },
+          "instructors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "nullable": true
+          },
+          "num_tracking": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string",
+            "example": "Functional Programming"
+          },
+          "section": {
+            "type": "string",
+            "example": "001 / LEC"
+          },
+          "status": {
+            "type": "string",
+            "example": "OPEN"
+          },
+          "subject_code": {
+            "type": "string",
+            "example": "CS"
+          },
+          "is_tracking": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "catalog_num",
+          "course_id",
+          "course_num",
+          "instructors",
+          "mode",
+          "num_tracking",
+          "title",
+          "section",
+          "status",
+          "subject_code",
+          "is_tracking"
+        ]
+      },
+      "Course": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "subject_code": {
+            "type": "string"
+          },
+          "course_num": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Section"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "subject_code",
+          "course_num",
+          "title",
+          "sections"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "notification": {
+            "type": "string",
+            "nullable": true,
+            "description": "Account-wide push preference, normally IOS, ANDROID, or null."
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "first_name",
+          "last_name",
+          "notification"
+        ]
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "session_token": {
+            "type": "string"
+          },
+          "session_expiration": {
+            "type": "integer",
+            "description": "Unix expiration time in seconds."
+          },
+          "update_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_token",
+          "session_expiration",
+          "update_token"
+        ]
+      },
+      "DeviceRegistration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "device_type": {
+            "type": "string",
+            "enum": [
+              "IOS",
+              "ANDROID"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "device_type"
+        ]
+      },
+      "DeviceInput": {
+        "type": "object",
+        "properties": {
+          "device_type": {
+            "type": "string",
+            "enum": [
+              "IOS",
+              "ANDROID"
+            ]
+          },
+          "device_token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "Nonblank APNs token for IOS or FCM registration token for ANDROID. This is not an authentication token."
+          }
+        },
+        "required": [
+          "device_type",
+          "device_token"
+        ]
+      },
+      "SearchInput": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "example": "CS 3110"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "TrackingInput": {
+        "type": "object",
+        "properties": {
+          "course_id": {
+            "type": "integer",
+            "example": 12345,
+            "description": "Despite the field name, this is the section catalog number, not the course database ID."
+          }
+        },
+        "required": [
+          "course_id"
+        ]
+      },
+      "NotificationInput": {
+        "type": "object",
+        "properties": {
+          "notification": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "IOS",
+              "ANDROID",
+              "NONE",
+              null
+            ],
+            "description": "Use NONE or null to clear the push preference. This does not disable email notifications."
+          }
+        },
+        "required": [
+          "notification"
+        ]
+      },
+      "InitializeInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Google OAuth ID token, not a Firebase ID token."
+          },
+          "device_type": {
+            "type": "string",
+            "enum": [
+              "IOS",
+              "ANDROID",
+              "WEB"
+            ]
+          },
+          "device_token": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional mobile push token; omit for web."
+          }
+        },
+        "required": [
+          "token",
+          "device_type"
+        ]
+      },
+      "CourseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "SectionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/Section"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "TrackingResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "sections": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Section"
+                }
+              }
+            },
+            "required": [
+              "sections"
+            ]
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "courses": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Course"
+                }
+              },
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "courses",
+              "query"
+            ]
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/User"
+              }
+            },
+            "required": [
+              "user"
+            ]
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "DeviceResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/DeviceRegistration"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message"
+            ]
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      },
+      "EmptyResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "type": "object",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix time in seconds."
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "timestamp"
+        ]
+      }
+    },
+    "responses": {
+      "LegacyMessageResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/MessageResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Error401": {
+        "description": "Missing, invalid, expired, revoked, or disabled credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "WWW-Authenticate": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer"
+          }
+        }
+      },
+      "LegacyCourseResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/CourseResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "LegacySearchResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/SearchResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "LegacySectionResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/SectionResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "LegacyTrackingResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrackingResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "LegacyEmptyResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/EmptyResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "MessageResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MessageResponse"
+            }
+          }
+        }
+      },
+      "Error403": {
+        "description": "Identity does not meet Google sign-in or email eligibility requirements.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error409": {
+        "description": "Identity or device-registration conflict.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error500": {
+        "description": "Unexpected controller failure (including generic shared-controller errors).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error503": {
+        "description": "Firebase authentication service unavailable.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "CourseResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CourseResponse"
+            }
+          }
+        }
+      },
+      "SearchResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SearchResponse"
+            }
+          }
+        }
+      },
+      "SectionResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SectionResponse"
+            }
+          }
+        }
+      },
+      "TrackingResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TrackingResponse"
+            }
+          }
+        }
+      },
+      "EmptyResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EmptyResponse"
+            }
+          }
+        }
+      },
+      "LegacySessionResponse": {
+        "description": "Success, or a legacy error with success:false.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/SessionResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "UserResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UserResponse"
+            }
+          }
+        }
+      },
+      "DeviceResponse": {
+        "description": "Successful request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeviceResponse"
+            }
+          }
+        }
+      },
+      "Error400": {
+        "description": "Invalid device-registration input.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error404": {
+        "description": "Device registration not found or not owned by this user.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
