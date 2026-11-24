@@ -14,11 +14,11 @@ class RegisterDeviceController(AppDevController):
 
     @authorize_user
     def content(self, **kwargs):
-        device = devices_dao.register_device(kwargs["user"].id, request.get_json(silent=True))
-        return device.serialize()
+        registration = devices_dao.register_new_device(kwargs["user"].id, request.get_json(silent=True))
+        return registration.serialize()
 
 
-class ManageDeviceRegistrationController(AppDevController):
+class ManageDeviceController(AppDevController):
     def get_path(self):
         return "/users/devices/<int:registration_id>/"
 
@@ -32,4 +32,7 @@ class ManageDeviceRegistrationController(AppDevController):
         if request.method == "DELETE":
             devices_dao.unregister_device(user_id, registration_id)
             return None
-        return devices_dao.register_device(user_id, request.get_json(silent=True), registration_id).serialize()
+        registration = devices_dao.update_device_registration(
+            user_id, registration_id, request.get_json(silent=True)
+        )
+        return registration.serialize()

@@ -48,7 +48,7 @@ coursegrab_v2 = Blueprint("coursegrab_v2", __name__, url_prefix="/api/v2")
 v2_controllers = [
     CurrentUserController(),
     RegisterDeviceController(),
-    ManageDeviceRegistrationController(),
+    ManageDeviceController(),
 ]
 
 for controller in shared_controllers + v2_controllers:

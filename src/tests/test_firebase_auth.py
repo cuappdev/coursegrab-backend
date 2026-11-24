@@ -186,7 +186,7 @@ def test_expired_token_cleanup_is_platform_scoped(client, verifier):
     client.get("/api/v2/hello/", headers=headers())
     user = User.query.one()
     for platform in ("IOS", "ANDROID"):
-        devices_dao.register_device(user.id, {"device_type": platform, "device_token": "same-token"})
+        devices_dao.register_new_device(user.id, {"device_type": platform, "device_token": "same-token"})
     devices_dao.delete_expired_device_tokens(["same-token"], "IOS")
     assert users_dao.get_user_device_tokens(user.id, "IOS") == []
     assert users_dao.get_user_device_tokens(user.id, "ANDROID") == ["same-token"]
@@ -317,11 +317,11 @@ def test_notifications_include_both_versions_without_duplicates(client, verifier
     client.get("/api/v2/users/me/", headers=headers())
     user = User.query.one()
     legacy = sessions_dao.create_session(user.id, "IOS", "legacy-token")
-    devices_dao.register_device(user.id, {"device_type": "IOS", "device_token": "v2-token"})
+    devices_dao.register_new_device(user.id, {"device_type": "IOS", "device_token": "v2-token"})
     assert users_dao.get_user_device_tokens(user.id, "IOS") == ["legacy-token", "v2-token"]
     sessions_dao.update_device_token(legacy.id, "rotated-legacy-token")
     assert users_dao.get_user_device_tokens(user.id, "IOS") == ["rotated-legacy-token", "v2-token"]
-    device = devices_dao.register_device(user.id, {"device_type": "IOS", "device_token": "rotated-legacy-token"})
+    device = devices_dao.register_new_device(user.id, {"device_type": "IOS", "device_token": "rotated-legacy-token"})
     assert users_dao.get_user_device_tokens(user.id, "IOS") == ["rotated-legacy-token", "v2-token"]
     devices_dao.unregister_device(user.id, device.id)
     assert users_dao.get_user_device_tokens(user.id, "IOS") == ["v2-token"]
@@ -331,7 +331,7 @@ def test_v2_registration_takes_precedence_over_another_users_legacy_token(client
     legacy_user = users_dao.create_user("legacy@cornell.edu", "Legacy", "User")
     current_user = users_dao.create_user("current@cornell.edu", "Current", "User")
     sessions_dao.create_session(legacy_user.id, "IOS", "shared-token")
-    devices_dao.register_device(current_user.id, {"device_type": "IOS", "device_token": "shared-token"})
+    devices_dao.register_new_device(current_user.id, {"device_type": "IOS", "device_token": "shared-token"})
 
     assert users_dao.get_user_device_tokens(legacy_user.id, "IOS") == []
     assert users_dao.get_user_device_tokens(current_user.id, "IOS") == ["shared-token"]
@@ -374,3 +374,22 @@ def test_notifications_route_v2_devices_to_the_platform_sender(client, verifier,
     assert payload["section"]["is_tracking"] is True
     other_sender.assert_not_called()
     email_sender.assert_called_once_with(section, ["student@cornell.edu"])
+
+
+@pytest.mark.parametrize("other_user", [False, True])
+def test_device_update_rejects_token_owned_by_another_registration(client, verifier, other_user):
+    client.get("/api/v2/users/me/", headers=headers())
+    user = User.query.one()
+    registration = devices_dao.register_new_device(user.id, {"device_type": "IOS", "device_token": "original"})
+    owner = users_dao.create_user("other@cornell.edu", "Other", "User") if other_user else user
+    devices_dao.register_new_device(owner.id, {"device_type": "IOS", "device_token": "taken"})
+    legacy_session = sessions_dao.create_session(user.id, "IOS", "original")
+
+    response = client.put("/api/v2/users/devices/{}/".format(registration.id),
+                          json={"device_type": "IOS", "device_token": "taken"}, headers=headers())
+
+    assert response.status_code == 409
+    db.session.expire_all()
+    assert registration.device_token == "original"
+    assert legacy_session.device_token == "original"
+    assert DeviceRegistration.query.count() == 2

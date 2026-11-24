@@ -53,6 +53,7 @@ def update_device_token(session_id, device_token):
     return session
 
 
+# Deprecated: use devices_dao.delete_expired_device_tokens(tokens, device_type) instead.
 # If there is an expired device_token, it is no longer in use (probably because the user
 # deleted the app). Therefore, we no longer need a session associated with this device_token.
 def delete_session_expired_device_tokens(tokens):
